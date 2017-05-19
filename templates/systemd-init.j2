@@ -1,0 +1,37 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description={{ item.value.service_name }} service
+{% for item in systemd_after_targets %}
+After={{ item }}
+{% endfor %}
+
+[Service]
+Type=simple
+User={{ system_user_name }}
+Group={{ system_group_name }}
+
+{% if item.value.program_override is defined %}
+ExecStart={{ item.value.program_override }} {{ item.value.program_config_options | default('') }}
+{% else %}
+ExecStart={{ systemd_bin_path }}/{{ item.value.service_name }} {{ item.value.program_config_options | default('') }}
+{% endif %}
+
+# Give a reasonable amount of time for the server to start up/shut down
+TimeoutSec={{ systemd_TimeoutSec }}
+Restart={{ systemd_Restart }}
+RestartSec={{ systemd_RestartSec }}
+
+# This creates a specific slice which all services will operate from
+#  The accounting options give us the ability to see resource usage through
+#  the `systemd-cgtop` command.
+Slice={{ system_slice_name }}.slice
+
+# Set Accounting
+CPUAccounting={{ system_CPUAccounting }}
+BlockIOAccounting={{ system_BlockIOAccounting }}
+MemoryAccounting={{ system_MemoryAccounting }}
+TasksAccounting={{ system_TasksAccounting }}
+
+[Install]
+WantedBy=multi-user.target

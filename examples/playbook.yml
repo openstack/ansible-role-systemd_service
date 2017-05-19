@@ -1,0 +1,13 @@
+.. code-block:: yaml
+
+    - name: Create a systemd unit file for ServiceX
+      hosts: localhost
+      become: true
+      roles:
+        - role: "systemd_init"
+          systemd_services:
+            service_name: ServiceX
+            init_config_overrides: {}
+            program_config_options: '--flag1 things --flag2 other'
+          tags:
+            - servicex-init

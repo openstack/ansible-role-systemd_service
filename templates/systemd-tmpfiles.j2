@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+D /var/lock/{{ item.value.service_name }} 2755 {{ system_user_name }} {{ system_group_name }}
+D /var/run/{{ item.value.service_name }} 2755 {{ system_user_name }} {{ system_group_name }}
+D {{ system_lock_path }} 2755 {{ system_user_name }} {{ system_group_name }}
