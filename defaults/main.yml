@@ -63,3 +63,5 @@ systemd_after_targets:
 #       service_name: ServiceY
 #       init_config_overrides: {}  # This is used to add in arbitratry unit file options
 #       program_override: '/usr/bin/ServiceY'
+
+systemd_services: {}
