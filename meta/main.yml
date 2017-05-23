@@ -29,3 +29,5 @@ galaxy_info:
   categories:
     - systemd_init
     - development
+  dependencies:
+    - role: plugins

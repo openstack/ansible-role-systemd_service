@@ -1,18 +1,26 @@
----
-# Copyright 2017, Rackspace US, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+#### Ansible systemd_init
 
+This Ansible role that installs and configures systemd unit files and all of its
+corresponding services. This role requires the ``openstack-ansible-plugins``
+repository to be available on your local system. The Ansible galaxy resolver
+will not retrieve this role for you. To get this role in place clone the
+plugins repository **before** installing this role.
+
+``` bash
+# git clone https://github.com/openstack/openstack-ansible-plugins /etc/ansible/roles/plugins
+```
+
+You can also use the ``ansible-galaxy`` command on the ``ansible-role-requirements.yml`` file.
+
+``` bash
+# ansible-galaxy install -r ansible-role-requirements.yml
+```
+
+----
+
+###### Defaults (See actual role for more details)
+
+``` yaml
 # This is the default path for a given service. Set this for general service lookups or
 #  define "program_override" option in the systemd_services dictionary.
 systemd_bin_path: /usr/local/bin
@@ -81,3 +89,23 @@ systemd_service_config_overrides: {}
 #       state: stopped
 
 systemd_services: {}
+```
+
+----
+
+###### Example playbook
+
+``` yaml
+- name: Create a systemd unit file for ServiceX
+  hosts: localhost
+  become: true
+  roles:
+    - role: "systemd_init"
+      systemd_services:
+        service_name: ServiceX
+        init_config_overrides: {}
+        program_config_options: '--flag1 things --flag2 other'
+      tags:
+        - servicex-init
+
+```
