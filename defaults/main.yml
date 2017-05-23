@@ -43,12 +43,20 @@ systemd_after_targets:
   - syslog.target
   - network.target
 
+# Set the service state. Valid options are: [started, stopped, restarted, reloaded].
+systemd_service_state: started
+
+# Set the service enabled state. Valid options are: [yes, no]
+systemd_service_enabled: yes
+
 # The systemD services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
 #  `init_config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.
 #  `program_config_options` -- (optional) Provides the ability to pass in flags to a given service for execution.
 #  `program_override` -- (optional) sets the full path to the executable that will be run by the service file.
+#  `enabled` -- (optional) Set the enabled state of the service.
+#  `state` -- (optional) Set the running state of the service.
 
 #  Examples:
 #   systemd_services:
@@ -63,5 +71,10 @@ systemd_after_targets:
 #       service_name: ServiceY
 #       init_config_overrides: {}  # This is used to add in arbitratry unit file options
 #       program_override: '/usr/bin/ServiceY'
+#     ServiceZ:
+#       service_name: ServiceZ
+#       init_config_overrides: {}  # This is used to add in arbitratry unit file options
+#       enabled: no
+#       state: stopped
 
 systemd_services: {}

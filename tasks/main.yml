@@ -60,10 +60,11 @@
     - systemd-init
 
 - name: Load service
-  service:
-   name: "{{ item.value.service_name }}"
-   enabled: "yes"
-   state: "started"
+  systemd:
+    name: "{{ item.value.service_name }}"
+    daemon_reload: yes
+    enabled: "{{ item.value.enabled | default(systemd_service_enabled) }}"
+    state: "{{ item.value.service_state | default(systemd_service_state) }}"
   with_dict: "{{ systemd_services }}"
   tags:
     - systemd-init
