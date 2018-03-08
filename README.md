@@ -25,10 +25,10 @@ You can also use the ``ansible-galaxy`` command on the ``ansible-role-requiremen
 #  define "program_override" option in the systemd_services dictionary.
 systemd_bin_path: /usr/local/bin
 
-system_user_name: root
-system_group_name: root
-system_slice_name: system
-system_lock_path: /var/lock
+systemd_user_name: root
+systemd_group_name: root
+systemd_slice_name: system
+systemd_lock_path: /var/lock
 
 # This is the prefix used for all temp files of a given type.
 systemd_tempd_prefix: tempd
@@ -38,11 +38,17 @@ systemd_TimeoutSec: 120
 systemd_Restart: on-failure
 systemd_RestartSec: 2
 
-# Set accounting on systemd service
-system_CPUAccounting: true
-system_BlockIOAccounting: true
-system_MemoryAccounting: true
-system_TasksAccounting: true
+# Accounting options
+systemd_CPUAccounting: true
+systemd_BlockIOAccounting: true
+systemd_MemoryAccounting: true
+systemd_TasksAccounting: true
+
+# Sandboxing options
+systemd_PrivateTmp: true
+systemd_PrivateDevices: false
+systemd_PrivateNetwork: true
+systemd_PrivateUsers: true
 
 # Start service after a given target. This is here because we want to define common
 #  after targets used on most services. This can be overridden or agumented using
@@ -51,16 +57,13 @@ systemd_after_targets:
   - syslog.target
   - network.target
 
-# Set the service state. Valid options are: [started, stopped, restarted, reloaded].
-systemd_service_state: started
-
 # Set the service enabled state. Valid options are: [yes, no]
 systemd_service_enabled: yes
 
 # Set global service overrides used within the service unit file.
 systemd_service_config_overrides: {}
 
-# The systemD services dictionary is a set of services that will be created. The dictionary
+# The systemd services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
 #  `init_config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.

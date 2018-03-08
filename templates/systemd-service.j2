@@ -1,0 +1,61 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description={{ item.service_name }} service
+{% for item in systemd_after_targets %}
+After={{ item }}
+{% endfor %}
+
+[Service]
+Type={{ item.service_type | default('simple') }}
+User={{ systemd_user_name }}
+Group={{ systemd_group_name }}
+
+{% if item.program_override is defined %}
+ExecStart={{ item.program_override }} {{ item.program_config_options | default('') }}
+{% else %}
+ExecStart={{ systemd_bin_path }}/{{ item.service_name }} {{ item.program_config_options | default('') }}
+{% endif %}
+
+{% if item.program_reload is defined %}
+ExecReload={{ item.program_reload }}
+{% else %}
+ExecReload=/bin/kill -HUP $MAINPID
+{% endif %}
+
+# Give a reasonable amount of time for the server to start up/shut down
+TimeoutSec={{ systemd_TimeoutSec }}
+Restart={{ systemd_Restart }}
+RestartSec={{ systemd_RestartSec }}
+
+# This creates a specific slice which all services will operate from
+#  The accounting options give us the ability to see resource usage through
+#  the `systemd-cgtop` command.
+Slice={{ systemd_slice_name }}.slice
+
+# Set Accounting
+{% if item.program_accounting is defined %}
+{%   for key, value in item.program_accounting.items() %}
+{{ key }}={{ value }}
+{%   endfor %}
+{% else %}
+CPUAccounting={{ systemd_CPUAccounting }}
+BlockIOAccounting={{ systemd_BlockIOAccounting }}
+MemoryAccounting={{ systemd_MemoryAccounting }}
+TasksAccounting={{ systemd_TasksAccounting }}
+{% endif %}
+
+# Set Sandboxing
+{% if item.program_sandboxing is defined %}
+{%   for key, value in item.program_sandboxing.items() %}
+{{ key }}={{ value }}
+{%   endfor %}
+{% else %}
+PrivateTmp={{ systemd_PrivateTmp }}
+PrivateDevices={{ systemd_PrivateDevices }}
+PrivateNetwork={{ systemd_PrivateNetwork }}
+PrivateUsers={{ systemd_PrivateUsers }}
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target
