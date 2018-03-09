@@ -7,20 +7,34 @@ After={{ item }}
 {% endfor %}
 
 [Service]
-Type={{ item.service_type | default('simple') }}
+{% set service_type = item.service_type | default('simple') %}
+Type={{ service_type }}
 User={{ systemd_user_name }}
 Group={{ systemd_group_name }}
 
-{% if item.program_override is defined %}
+{% if service_type == 'oneshot' and item.program_execstarts is defined %}
+{%   for execstart in item.program_execstarts %}
+ExecStart={{ execstart }}
+{%   endfor %}
+{%   if item.program_execstops is defined %}
+{%     for execstop in item.program_execstops %}
+ExecStop={{ execstop }}
+{%     endfor %}
+{%   endif %}
+{% else %}
+{%   if item.program_override is defined %}
 ExecStart={{ item.program_override }} {{ item.program_config_options | default('') }}
-{% else %}
+{%   else %}
 ExecStart={{ systemd_bin_path }}/{{ item.service_name }} {{ item.program_config_options | default('') }}
-{% endif %}
-
-{% if item.program_reload is defined %}
+{%   endif %}
+{%   if item.program_reload is defined %}
 ExecReload={{ item.program_reload }}
-{% else %}
+{%   else %}
 ExecReload=/bin/kill -HUP $MAINPID
+{%   endif %}
+{%   if item.program_stop is defined %}
+ExecStop={{ item.program_stop }}
+{%   endif %}
 {% endif %}
 
 # Give a reasonable amount of time for the server to start up/shut down

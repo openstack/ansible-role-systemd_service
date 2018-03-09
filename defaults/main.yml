@@ -81,10 +81,18 @@ systemd_service_config_overrides: {}
 #       service_name: ServiceY
 #       init_config_overrides: {}  # This is used to add in arbitratry unit file options
 #       program_override: '/usr/bin/ServiceY'
+#       program_stop: '/usr/bin/stopcmd'
 #     ServiceZ:
 #       service_name: ServiceZ
 #       init_config_overrides: {}  # This is used to add in arbitratry unit file options
 #       enabled: no
 #       state: stopped
+#       service_type: oneshot
+#       program_execstarts:
+#         - /usr/bin/startcmd1
+#         - /usr/bin/startcmd2
+#       program_execstops
+#         - /usr/bin/stopcmd1
+#         - /usr/bin/stopcmd2
 
 systemd_services: {}
