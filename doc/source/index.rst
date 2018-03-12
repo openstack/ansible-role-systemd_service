@@ -1,8 +1,8 @@
 =======================================
-systemd_init role for OpenStack-Ansible
+systemd_service role for OpenStack-Ansible
 =======================================
 
-:tags: openstack, systemd_init, cloud, ansible
+:tags: openstack, systemd_service, cloud, ansible
 :category: \*nix
 
 This role will configure Systemd units:

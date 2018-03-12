@@ -87,9 +87,9 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in $(BUILDDIR)/qthelp, like this:"
-	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/ansible-systemd_init.qhcp"
+	@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/ansible-systemd_service.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/ansible-systemd_init.qhc"
+	@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/ansible-systemd_service.qhc"
 
 applehelp:
 	$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
@@ -104,8 +104,8 @@ devhelp:
 	@echo
 	@echo "Build finished."
 	@echo "To view the help file:"
-	@echo "# mkdir -p $$HOME/.local/share/devhelp/ansible-systemd_init"
-	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/ansible-systemd_init"
+	@echo "# mkdir -p $$HOME/.local/share/devhelp/ansible-systemd_service"
+	@echo "# ln -s $(BUILDDIR)/devhelp $$HOME/.local/share/devhelp/ansible-systemd_service"
 	@echo "# devhelp"
 
 epub:

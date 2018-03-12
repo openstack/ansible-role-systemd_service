@@ -1,4 +1,4 @@
-systemd_init
+systemd_service
 ############
 :tags: openstack, cloud, ansible
 :category: \*nix

@@ -3,7 +3,7 @@
   <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
 
-    <title>OpenStack Docs: systemd_init role for OpenStack-Ansible</title>
+    <title>OpenStack Docs: systemd_service role for OpenStack-Ansible</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -184,7 +184,7 @@ ga('send', 'pageview');
         <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
 <div class="row">
   <div class="col-lg-8">
-      <h2>systemd_init role for OpenStack-Ansible</h2>
+      <h2>systemd_service role for OpenStack-Ansible</h2>
 
   </div>
   <div class="docs-actions">
@@ -202,7 +202,7 @@ ga('send', 'pageview');
 
 <h5><a href="#">Contents</a></h5>
 <ul>
-<li><a class="reference internal" href="#">systemd_init role for OpenStack-Ansible</a><ul>
+<li><a class="reference internal" href="#">systemd_service role for OpenStack-Ansible</a><ul>
 <li><a class="reference internal" href="#default-variables">Default variables</a></li>
 <li><a class="reference internal" href="#example-playbook">Example playbook</a></li>
 <li><a class="reference internal" href="#tags">Tags</a></li>
@@ -214,12 +214,12 @@ ga('send', 'pageview');
               <div class="docs-body">
 
   <div class="section" id="systemd-init-role-for-openstack-ansible">
-<h1>systemd_init role for OpenStack-Ansible<a class="headerlink" href="#systemd-init-role-for-openstack-ansible" title="Permalink to this headline">¶</a></h1>
+<h1>systemd_service role for OpenStack-Ansible<a class="headerlink" href="#systemd-init-role-for-openstack-ansible" title="Permalink to this headline">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">tags:</th><td class="field-body">openstack, systemd_init, cloud, ansible</td>
+<tr class="field-odd field"><th class="field-name">tags:</th><td class="field-body">openstack, systemd_service, cloud, ansible</td>
 </tr>
 <tr class="field-even field"><th class="field-name">category:</th><td class="field-body">*nix</td>
 </tr>
@@ -304,7 +304,7 @@ ga('send', 'pageview');
       <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">localhost</span>
       <span class="l l-Scalar l-Scalar-Plain">become</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
       <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
-        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="s">&quot;systemd_init&quot;</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="s">&quot;systemd_service&quot;</span>
           <span class="l l-Scalar l-Scalar-Plain">systemd_services</span><span class="p p-Indicator">:</span>
             <span class="l l-Scalar l-Scalar-Plain">service_name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ServiceX</span>
             <span class="l l-Scalar l-Scalar-Plain">init_config_overrides</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>

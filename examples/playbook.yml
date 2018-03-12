@@ -4,7 +4,7 @@
       hosts: localhost
       become: true
       roles:
-        - role: "systemd_init"
+        - role: "systemd_service"
           systemd_services:
             service_name: ServiceX
             init_config_overrides: {}

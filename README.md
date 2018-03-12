@@ -1,4 +1,4 @@
-#### Ansible systemd_init
+#### Ansible systemd_service
 
 This Ansible role that installs and configures systemd unit files and all of its
 corresponding services. This role requires the ``openstack-ansible-plugins``
@@ -103,7 +103,7 @@ systemd_services: {}
   hosts: localhost
   become: true
   roles:
-    - role: "systemd_init"
+    - role: "systemd_service"
       systemd_services:
         service_name: ServiceX
         init_config_overrides: {}
