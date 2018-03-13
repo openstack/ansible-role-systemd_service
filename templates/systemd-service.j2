@@ -27,7 +27,7 @@ ExecStart={{ item.program_override }} {{ item.program_config_options | default('
 {%   else %}
 ExecStart={{ systemd_bin_path }}/{{ item.service_name }} {{ item.program_config_options | default('') }}
 {%   endif %}
-{%   if item.program_reload is defined %}
+{%   if item.program_reload is defined and service_type != 'oneshot' %}
 ExecReload={{ item.program_reload }}
 {%   else %}
 ExecReload=/bin/kill -HUP $MAINPID
@@ -39,8 +39,10 @@ ExecStop={{ item.program_stop }}
 
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec={{ systemd_TimeoutSec }}
+{% if service_type != 'oneshot' %}
 Restart={{ systemd_Restart }}
 RestartSec={{ systemd_RestartSec }}
+{% endif %}
 
 # This creates a specific slice which all services will operate from
 #  The accounting options give us the ability to see resource usage through
