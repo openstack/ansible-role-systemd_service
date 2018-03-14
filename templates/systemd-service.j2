@@ -61,16 +61,18 @@ MemoryAccounting={{ systemd_MemoryAccounting }}
 TasksAccounting={{ systemd_TasksAccounting }}
 {% endif %}
 
+{% if service_type != 'oneshot' %}
 # Set Sandboxing
-{% if item.program_sandboxing is defined %}
-{%   for key, value in item.program_sandboxing.items() %}
+{%   if item.program_sandboxing is defined %}
+{%     for key, value in item.program_sandboxing.items() %}
 {{ key }}={{ value }}
-{%   endfor %}
-{% else %}
+{%     endfor %}
+{%   else %}
 PrivateTmp={{ systemd_PrivateTmp }}
 PrivateDevices={{ systemd_PrivateDevices }}
 PrivateNetwork={{ systemd_PrivateNetwork }}
 PrivateUsers={{ systemd_PrivateUsers }}
+{%   endif %}
 {% endif %}
 
 [Install]
