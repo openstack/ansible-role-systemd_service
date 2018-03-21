@@ -1,6 +1,6 @@
-=======================================
+==========================================
 systemd_service role for OpenStack-Ansible
-=======================================
+==========================================
 
 :tags: openstack, systemd_service, cloud, ansible
 :category: \*nix

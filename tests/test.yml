@@ -1,5 +1,6 @@
 ---
 # Copyright 2015, Rackspace US, Inc.
+# Copyright 2018, Logan Vig <logan2211@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- hosts: localhost
-  gather_facts: true
-  tasks:
-    - debug: msg=testing
+- name: Playbook for role testing
+  hosts: localhost
+  connection: local
+  user: root
+  become: true
+  roles:
+    - role: "systemd_service"
