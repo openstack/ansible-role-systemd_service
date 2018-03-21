@@ -12,7 +12,7 @@ Type={{ service_type }}
 User={{ systemd_user_name }}
 Group={{ systemd_group_name }}
 
-{% set _execstarts = item.execstarts | default(systemd_default_execstarts) %}
+{% set _execstarts = item.execstarts %}
 {% if _execstarts is string %}
 {%   set _execstarts = [_execstarts] %}
 {% endif %}
@@ -20,7 +20,7 @@ Group={{ systemd_group_name }}
 ExecStart={{ execstart }}
 {% endfor %}
 
-{% set _execreloads = item.execreloads | default(systemd_default_execreloads) %}
+{% set _execreloads = item.execreloads | default((service_type == 'simple') | ternary(['/bin/kill -HUP $MAINPID'], [])) %}
 {% if _execreloads is string %}
 {%   set _execreloads = [_execreloads] %}
 {% endif %}
@@ -28,7 +28,7 @@ ExecStart={{ execstart }}
 ExecReload={{ execreload }}
 {% endfor %}
 
-{% set _execstops = item.execstops | default(systemd_default_execstops) %}
+{% set _execstops = item.execstops | default([]) %}
 {% if _execstops is string %}
 {%   set _execstops = [_execstops] %}
 {% endif %}

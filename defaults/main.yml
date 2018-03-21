@@ -13,14 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is the default path for a given service. Set this for general service lookups or
-#  define "program_override" option in the systemd_services dictionary.
-systemd_bin_path: /usr/local/bin
-
 systemd_user_name: root
 systemd_group_name: root
 systemd_slice_name: system
-systemd_lock_path: /var/lock
 
 # This is the prefix used for all temp files of a given type.
 systemd_tempd_prefix: tempd
@@ -44,7 +39,7 @@ systemd_PrivateUsers: true
 
 # Start service after a given target. This is here because we want to define common
 #  after targets used on most services. This can be overridden or agumented using
-#  the "systemd_services" dictionary option "init_config_overrides".
+#  the "systemd_services" dictionary option "config_overrides".
 systemd_after_targets:
   - syslog.target
   - network.target
@@ -62,41 +57,48 @@ systemd_default_service_type: simple
 # The systemd services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
-#  `init_config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.
-#  `program_config_options` -- (optional) Provides the ability to pass in flags to a given service for execution.
-#  `program_override` -- (optional) sets the full path to the executable that will be run by the service file.
+#  `service_type` -- (optional) Set the service type, default is "simple".
+#  `execstarts` -- (required) Set the program to start, when the service is simple the list has a max length of 1.
+#  `execstops` -- (optional) Set the program to stop, when the service is simple the list has a max length of 1.
+#  `config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.
+#  `program_sandboxing` -- (optional) Case sensitive Key=Value pairs for service Sandboxing
+#  `program_accounting` -- (optional) Case sensitive Key=Value pairs for service Accounting
 #  `enabled` -- (optional) Set the enabled state of the service.
 #  `state` -- (optional) Set the running state of the service.
 
 #  Examples:
 #   systemd_services:
-#     ServiceW:
-#       service_name: ServiceW
-#       init_config_overrides: {}  # This is used to add in arbitratry unit file options
-#     ServiceX:
-#       service_name: ServiceX
-#       init_config_overrides: {}  # This is used to add in arbitratry unit file options
-#       program_config_options: '--flag1 things --flag2 other'
+#     - service_name: ServiceW
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - ServiceW
+#
+#     - service_name: ServiceX
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - ServiceX
 #       program_sandboxing:
 #         PrivateTmp: true
 #       program_accounting:
 #         CPUAccounting: true
-#     ServiceY:
-#       service_name: ServiceY
-#       init_config_overrides: {}  # This is used to add in arbitratry unit file options
-#       program_override: '/usr/bin/ServiceY'
-#       program_stop: '/usr/bin/stopcmd'
-#     ServiceZ:
-#       service_name: ServiceZ
-#       init_config_overrides: {}  # This is used to add in arbitratry unit file options
+#
+#     - service_name: ServiceY
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - '/usr/bin/ServiceY'
+#       execstarts:
+#         - '/usr/bin/stopcmd'
+#
+#     - service_name: ServiceZ
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
 #       enabled: no
 #       state: stopped
 #       service_type: oneshot
-#       program_execstarts:
+#       execstarts:
 #         - /usr/bin/startcmd1
 #         - /usr/bin/startcmd2
-#       program_execstops
+#       execstops
 #         - /usr/bin/stopcmd1
 #         - /usr/bin/stopcmd2
 
-systemd_services: {}
+systemd_services: []

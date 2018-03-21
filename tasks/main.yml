@@ -15,66 +15,116 @@
 
 - name: Create TEMP run dir
   file:
-    path: "/var/run/{{ item.service_name }}"
+    path: "/var/run/{{ item.service_name | replace(' ', '_') }}"
     state: directory
-    owner: "{{ systemd_user_name }}"
-    group: "{{ systemd_group_name }}"
+    owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+    group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
   with_items: "{{ systemd_services }}"
   tags:
    - systemd-init
 
-- name: Create TEMP lock dir
+- name: Create TEMP service lock dir
   file:
-    path: "/var/lock/{{ item.service_name }}"
+    path: "/var/lock/{{ item.service_name | replace(' ', '_') }}"
     state: directory
-    owner: "{{ systemd_user_name }}"
-    group: "{{ systemd_group_name }}"
+    owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+    group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
   with_items: "{{ systemd_services }}"
   tags:
     - systemd-init
 
+- name: Create TEMP defined lock dir
+  file:
+    path: "{{ item.systemd_lock_path }}"
+    state: directory
+    owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+    group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
+    mode: "02755"
+  when:
+    - item.systemd_lock_path is defined
+  with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
 - name: Create tmpfiles.d entry
   template:
     src: "systemd-tmpfiles.j2"
-    dest: "/etc/tmpfiles.d/{{ systemd_tempd_prefix }}-{{ item.service_name }}.conf"
+    dest: "/etc/tmpfiles.d/{{ item.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ item.service_name | replace(' ', '_') }}.conf"
     mode: "0644"
     owner: "root"
     group: "root"
+  when:
+    - item.systemd_lock_path is defined
   with_items: "{{ systemd_services }}"
   tags:
-    - systemd-init
+    - systemd-service
 
-- name: Create tmpfiles.d entry
-  template:
-    src: "systemd-tmpfiles-lock.j2"
-    dest: "/etc/tmpfiles.d/{{ systemd_tempd_prefix }}-{{ systemd_lock_path.strip('/') | replace('/', '-') }}-lock.conf"
-    mode: "0644"
-    owner: "root"
-    group: "root"
+- name: Check ExecStarts
+  fail:
+    msg: >-
+      When the service type is "simple" only ONE command can be started. Check
+      The list of execstarts and limit it to a single command per service or
+      consider using the "oneshot" service type. Defined ExecStart commands
+      "{{ item.execstarts }}".
+  when:
+    - item.execstarts is not string
+    - item.execstarts | length > 1
+    - item.service_type | default(systemd_default_service_type) != 'oneshot'
+  with_items: "{{ systemd_services }}"
   tags:
-    - systemd-init
+    - systemd-service
 
-- name: Place the systemd init script
+- name: Check ExecStops
+  fail:
+    msg: >-
+      When the service type is "simple" only ONE command can be stopped. Check
+      The list of execstops and limit it to a single command per service or
+      consider using the "oneshot" service type. Defined ExecStop commands
+      "{{ item.execstops }}".
+  when:
+    - item.execstops is not string
+    - item.execstops | default([]) | length > 1
+    - item.service_type | default(systemd_default_service_type) != 'oneshot'
+  with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
+- name: Check ExecReloads
+  fail:
+    msg: >-
+      When the service type is "simple" only ONE command can be reloaded. Check
+      The list of execreloads and limit it to a single command per service or
+      consider using the "oneshot" service type. Defined ExecStop commands
+      "{{ item.execreloads }}".
+  when:
+    - item.execreloads is not string
+    - item.execreloads | default([]) | length > 1
+    - item.service_type | default(systemd_default_service_type) != 'oneshot'
+  with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
+- name: Place the systemd service
   config_template:
     src: "systemd-service.j2"
-    dest: "/etc/systemd/system/{{ item.service_name }}.service"
+    dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
     mode: "0644"
     owner: "root"
     group: "root"
-    config_overrides: "{{ item.init_config_overrides | default(systemd_service_config_overrides) }}"
+    config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
   with_items: "{{ systemd_services }}"
   tags:
-    - systemd-init
+    - systemd-service
 
 - name: Load service
   systemd:
-    name: "{{ item.service_name }}"
+    name: "{{ item.service_name | replace(' ', '_') }}"
     daemon_reload: yes
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ systemd_services }}"
   tags:
-    - systemd-init
+    - systemd-service

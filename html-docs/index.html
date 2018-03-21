@@ -253,7 +253,7 @@ ga('send', 'pageview');
 
 <span class="c1"># Start service after a given target. This is here because we want to define common</span>
 <span class="c1">#  after targets used on most services. This can be overridden or agumented using</span>
-<span class="c1">#  the &quot;systemd_services&quot; dictionary option &quot;init_config_overrides&quot;.</span>
+<span class="c1">#  the &quot;systemd_services&quot; dictionary option &quot;config_overrides&quot;.</span>
 <span class="l l-Scalar l-Scalar-Plain">systemd_after_targets</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">syslog.target</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">network.target</span>
@@ -267,7 +267,7 @@ ga('send', 'pageview');
 <span class="c1"># The systemd services dictionary is a set of services that will be created. The dictionary</span>
 <span class="c1">#  can contain the following options:</span>
 <span class="c1">#  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.</span>
-<span class="c1">#  `init_config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.</span>
+<span class="c1">#  `config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.</span>
 <span class="c1">#  `program_config_options` -- (optional) Provides the ability to pass in flags to a given service for execution.</span>
 <span class="c1">#  `program_override` -- (optional) sets the full path to the executable that will be run by the service file.</span>
 <span class="c1">#  `enabled` -- (optional) Set the enabled state of the service.</span>
@@ -277,18 +277,18 @@ ga('send', 'pageview');
 <span class="c1">#   systemd_services:</span>
 <span class="c1">#     ServiceW:</span>
 <span class="c1">#       service_name: ServiceW</span>
-<span class="c1">#       init_config_overrides: {}  # This is used to add in arbitratry unit file options</span>
+<span class="c1">#       config_overrides: {}  # This is used to add in arbitratry unit file options</span>
 <span class="c1">#     ServiceX:</span>
 <span class="c1">#       service_name: ServiceX</span>
-<span class="c1">#       init_config_overrides: {}  # This is used to add in arbitratry unit file options</span>
+<span class="c1">#       config_overrides: {}  # This is used to add in arbitratry unit file options</span>
 <span class="c1">#       program_config_options: &#39;--flag1 things --flag2 other&#39;</span>
 <span class="c1">#     ServiceY:</span>
 <span class="c1">#       service_name: ServiceY</span>
-<span class="c1">#       init_config_overrides: {}  # This is used to add in arbitratry unit file options</span>
+<span class="c1">#       config_overrides: {}  # This is used to add in arbitratry unit file options</span>
 <span class="c1">#       program_override: &#39;/usr/bin/ServiceY&#39;</span>
 <span class="c1">#     ServiceZ:</span>
 <span class="c1">#       service_name: ServiceZ</span>
-<span class="c1">#       init_config_overrides: {}  # This is used to add in arbitratry unit file options</span>
+<span class="c1">#       config_overrides: {}  # This is used to add in arbitratry unit file options</span>
 <span class="c1">#       enabled: no</span>
 <span class="c1">#       state: stopped</span>
 
@@ -307,7 +307,7 @@ ga('send', 'pageview');
         <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">role</span><span class="p p-Indicator">:</span> <span class="s">&quot;systemd_service&quot;</span>
           <span class="l l-Scalar l-Scalar-Plain">systemd_services</span><span class="p p-Indicator">:</span>
             <span class="l l-Scalar l-Scalar-Plain">service_name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">ServiceX</span>
-            <span class="l l-Scalar l-Scalar-Plain">init_config_overrides</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
+            <span class="l l-Scalar l-Scalar-Plain">config_overrides</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">{}</span>
             <span class="l l-Scalar l-Scalar-Plain">program_config_options</span><span class="p p-Indicator">:</span> <span class="s">&#39;--flag1</span><span class="nv"> </span><span class="s">things</span><span class="nv"> </span><span class="s">--flag2</span><span class="nv"> </span><span class="s">other&#39;</span>
           <span class="l l-Scalar l-Scalar-Plain">tags</span><span class="p p-Indicator">:</span>
             <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">servicex-init</span>
