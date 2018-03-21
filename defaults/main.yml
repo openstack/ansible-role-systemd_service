@@ -55,6 +55,10 @@ systemd_service_enabled: yes
 # Set global service overrides used within the service unit file.
 systemd_service_config_overrides: {}
 
+# Systemd service type. Options include simple, forking, oneshot, etc.
+# https://www.freedesktop.org/software/systemd/man/systemd.service.html#Type=
+systemd_default_service_type: simple
+
 # The systemd services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.

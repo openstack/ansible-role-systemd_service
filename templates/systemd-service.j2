@@ -7,35 +7,34 @@ After={{ item }}
 {% endfor %}
 
 [Service]
-{% set service_type = item.service_type | default('simple') %}
+{% set service_type = item.service_type | default(systemd_default_service_type) %}
 Type={{ service_type }}
 User={{ systemd_user_name }}
 Group={{ systemd_group_name }}
 
-{% if service_type == 'oneshot' and item.program_execstarts is defined %}
-{%   for execstart in item.program_execstarts %}
-ExecStart={{ execstart }}
-{%   endfor %}
-{%   if item.program_execstops is defined %}
-{%     for execstop in item.program_execstops %}
-ExecStop={{ execstop }}
-{%     endfor %}
-{%   endif %}
-{% else %}
-{%   if item.program_override is defined %}
-ExecStart={{ item.program_override }} {{ item.program_config_options | default('') }}
-{%   else %}
-ExecStart={{ systemd_bin_path }}/{{ item.service_name }} {{ item.program_config_options | default('') }}
-{%   endif %}
-{%   if item.program_reload is defined and service_type != 'oneshot' %}
-ExecReload={{ item.program_reload }}
-{%   else %}
-ExecReload=/bin/kill -HUP $MAINPID
-{%   endif %}
-{%   if item.program_stop is defined %}
-ExecStop={{ item.program_stop }}
-{%   endif %}
+{% set _execstarts = item.execstarts | default(systemd_default_execstarts) %}
+{% if _execstarts is string %}
+{%   set _execstarts = [_execstarts] %}
 {% endif %}
+{% for execstart in _execstarts %}
+ExecStart={{ execstart }}
+{% endfor %}
+
+{% set _execreloads = item.execreloads | default(systemd_default_execreloads) %}
+{% if _execreloads is string %}
+{%   set _execreloads = [_execreloads] %}
+{% endif %}
+{% for execreload in _execreloads %}
+ExecReload={{ execreload }}
+{% endfor %}
+
+{% set _execstops = item.execstops | default(systemd_default_execstops) %}
+{% if _execstops is string %}
+{%   set _execstops = [_execstops] %}
+{% endif %}
+{% for execstop in _execstops %}
+ExecStop={{ execstop }}
+{% endfor %}
 
 # Give a reasonable amount of time for the server to start up/shut down
 TimeoutSec={{ systemd_TimeoutSec }}
