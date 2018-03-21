@@ -116,13 +116,21 @@
     config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
   with_items: "{{ systemd_services }}"
+  notify:
+    - systemd service changed
+  register: systemd_services_result
   tags:
     - systemd-service
+
+- name: Reload systemd on unit change
+  systemd:
+    daemon_reload: yes
+  when:
+    - 'systemd_services_result | changed'
 
 - name: Load service
   systemd:
     name: "{{ item.service_name | replace(' ', '_') }}"
-    daemon_reload: yes
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
     state: "{{ item.state | default(omit) }}"
   with_items: "{{ systemd_services }}"

@@ -25,7 +25,6 @@
         - service_name: "test simple service0"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service; done'"
           enabled: yes
-          state: started
         - service_name: "test oneshot service0"
           config_overrides:
             Unit:

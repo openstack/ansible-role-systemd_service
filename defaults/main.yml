@@ -17,6 +17,9 @@ systemd_user_name: root
 systemd_group_name: root
 systemd_slice_name: system
 
+# Restart services when a change occurs
+systemd_service_restart_changed: yes
+
 # This is the prefix used for all temp files of a given type.
 systemd_tempd_prefix: tempd
 
@@ -88,6 +91,7 @@ systemd_default_service_type: simple
 #         - '/usr/bin/ServiceY'
 #       execstarts:
 #         - '/usr/bin/stopcmd'
+#       restart_changed: no
 #
 #     - service_name: ServiceZ
 #       config_overrides: {}  # This is used to add in arbitratry unit file options
