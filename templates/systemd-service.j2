@@ -5,6 +5,9 @@ Description={{ item.service_name }} service
 {% for item in systemd_after_targets %}
 After={{ item }}
 {% endfor %}
+{% for item in systemd_unit_docs %}
+Documentation={{ item }}
+{% endfor %}
 
 [Service]
 {% set service_type = item.service_type | default(systemd_default_service_type) %}

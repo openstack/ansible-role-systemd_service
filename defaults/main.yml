@@ -47,6 +47,11 @@ systemd_after_targets:
   - syslog.target
   - network.target
 
+# List of documentation information that will be presented in the unit. This
+#  option is a list of documentation items which can be local or online.
+#  Usage: https://www.freedesktop.org/software/systemd/man/systemd.unit.html#Documentation=
+systemd_unit_docs: []
+
 # Set the service enabled state. Valid options are: [yes, no]
 systemd_service_enabled: yes
 
