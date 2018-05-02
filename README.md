@@ -27,10 +27,21 @@ You can also use the ``ansible-galaxy`` command on the ``ansible-role-requiremen
   roles:
     - role: "systemd_service"
       systemd_services:
+        # Normal Service
         - service_name: ServiceX
           execstarts:
             - /path/ServiceX --flag1
+
+        # Timer Service (AKA CRON)
+        - service_name: TimerServiceX
+          execstarts:
+            - /path/TimerServiceX --flag1
+          timer:
+            state: "started"
+            options:
+              OnBootSec: 30min
+              OnUnitActiveSec: 1h
+              Persistent: true
       tags:
         - servicex-init
-
 ```

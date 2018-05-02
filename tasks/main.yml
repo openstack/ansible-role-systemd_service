@@ -106,6 +106,17 @@
   tags:
     - systemd-service
 
+- name: Check timers
+  fail:
+    msg: >-
+      When using systemd timers the "state" must be defined under the timer key.
+  when:
+    - item.timer is defined
+    - item.timer.state is undefined
+  with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
 - name: Place the systemd service
   config_template:
     src: "systemd-service.j2"
@@ -122,17 +133,44 @@
   tags:
     - systemd-service
 
+- name: Place the systemd timer
+  template:
+    src: "systemd-timer.j2"
+    dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.timer"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  when:
+    - item.timer is defined
+  with_items: "{{ systemd_services }}"
+  notify:
+    - systemd service changed
+  register: systemd_timer_result
+  tags:
+    - systemd-service
+
 - name: Reload systemd on unit change
   systemd:
     daemon_reload: yes
   when:
-    - 'systemd_services_result | changed'
+    - (systemd_services_result | changed) or (systemd_timer_result | changed)
 
 - name: Load service
   systemd:
-    name: "{{ item.service_name | replace(' ', '_') }}"
+    name: "{{ item.service_name | replace(' ', '_') }}.service"
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
-    state: "{{ item.state | default(omit) }}"
+    state: "{{ (item.timer is defined) | ternary(omit, (item.state | default(omit))) }}"
+  with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
+- name: Load timer
+  systemd:
+    name: "{{ item.service_name | replace(' ', '_') }}.timer"
+    enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
+    state: "{{ item.timer.state | default(omit) }}"
+  when:
+    - item.timer is defined
   with_items: "{{ systemd_services }}"
   tags:
     - systemd-service

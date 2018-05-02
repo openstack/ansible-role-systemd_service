@@ -74,6 +74,15 @@ systemd_default_service_type: simple
 #  `enabled` -- (optional) Set the enabled state of the service.
 #  `state` -- (optional) Set the running state of the service.
 
+# Under the service dictionary the "timer" key can be added which will enable a given service
+#  as a timer (Legacy cron job).
+#  `options` -- (optional) This allows any section or key=value pair to be set within the systemd timer file.
+#  `cron_minute` -- (optional) This allows for "on calendar configuration" (AKA CRON) for the minute segment.
+#  `cron_hour` -- (optional) This allows for "on calendar configuration" (AKA CRON) for the hour segment.
+#  `cron_day` -- (optional) This allows for "on calendar configuration" (AKA CRON) for the day segment.
+#  `cron_weekday` -- (optional) This allows for "on calendar configuration" (AKA CRON) for the weekday segment.
+#  `cron_month` -- (optional) This allows for "on calendar configuration" (AKA CRON) for the month segment.
+
 #  Examples:
 #   systemd_services:
 #     - service_name: ServiceW
@@ -109,5 +118,26 @@ systemd_default_service_type: simple
 #       execstops
 #         - /usr/bin/stopcmd1
 #         - /usr/bin/stopcmd2
-
+#
+#     - service_name: TimerServiceW
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - '/usr/bin/ServiceY'
+#       restart_changed: no
+#       timer:
+#         state: "started"
+#         options:
+#           OnBootSec: 30min
+#           OnUnitActiveSec: 1h
+#           Persistent: true
+#
+#     - service_name: TimerServiceX
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - '/usr/bin/ServiceY'
+#       restart_changed: no
+#       timer:
+#         state: "started"
+#         cron_minute: 30
+#         cron_hour: 1
 systemd_services: []

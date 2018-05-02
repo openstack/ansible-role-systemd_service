@@ -44,6 +44,23 @@
           state: started
           systemd_tempd_prefix: openstack
           systemd_lock_path: /var/lock/networking
+        - service_name: "test timer service0"
+          execstarts:
+            - "/bin/bash -c 'echo start0'"
+          timer:
+            state: "started"
+            options:
+              OnBootSec: 30min
+              OnUnitActiveSec: 1h
+              Persistent: true
+        - service_name: "test timer service1"
+          execstarts:
+            - "/bin/bash -c 'echo start1'"
+          timer:
+            state: "started"
+            cron_minute: 30
+            cron_hour: 1
+
   post_tasks:
     - name: Check Services
       command: systemctl status "{{ item }}"
@@ -51,6 +68,8 @@
       with_items:
         - test_simple_service0
         - test_oneshot_service0
+        - test_timer_service0.timer
+        - test_timer_service1.timer
       tags:
         - skip_ansible_lint
 

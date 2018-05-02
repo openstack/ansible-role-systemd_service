@@ -15,7 +15,7 @@
 
 - name: Restart changed services
   systemd:
-    name: "{{ item.item.service_name | replace(' ', '_') }}"
+    name: "{{ item.item.service_name | replace(' ', '_') }}.{{ (item.item.timer is defined) | ternary('timer', 'service') }}"
     state: restarted
   listen: systemd service changed
   with_items: "{{ systemd_services_result.results }}"
