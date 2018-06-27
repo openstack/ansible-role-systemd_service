@@ -23,4 +23,6 @@
     - 'item.item.restart_changed | default(systemd_service_restart_changed) | bool'
     - 'item.item.state is not defined'
     - 'item.item.enabled | default(systemd_service_enabled) | bool'
-    - 'item | changed'
+    - 'item is changed'
+  tags:
+   - systemd-service

@@ -22,7 +22,7 @@
     mode: "02755"
   with_items: "{{ systemd_services }}"
   tags:
-   - systemd-init
+    - systemd-service
 
 - name: Create TEMP service lock dir
   file:
@@ -33,7 +33,7 @@
     mode: "02755"
   with_items: "{{ systemd_services }}"
   tags:
-    - systemd-init
+    - systemd-service
 
 - name: Create TEMP defined lock dir
   file:
@@ -153,7 +153,7 @@
   systemd:
     daemon_reload: yes
   when:
-    - (systemd_services_result | changed) or (systemd_timer_result | changed)
+    - (systemd_services_result is changed) or (systemd_timer_result is changed)
 
 - name: Load service
   systemd:
