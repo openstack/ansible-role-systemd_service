@@ -55,8 +55,6 @@
     mode: "0644"
     owner: "root"
     group: "root"
-  when:
-    - item.systemd_lock_path is defined
   with_items: "{{ systemd_services }}"
   tags:
     - systemd-service
