@@ -9,6 +9,8 @@ plugins repository **before** installing this role.
 ``` bash
 # git clone https://github.com/openstack/openstack-ansible-plugins /etc/ansible/roles/plugins
 ```
+Release notes for the project can be found at:
+  https://docs.openstack.org/releasenotes/ansible-role-systemd_service
 
 You can also use the ``ansible-galaxy`` command on the ``ansible-role-requirements.yml`` file.
 
