@@ -13,6 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Pull systemd version
+  command: "systemctl --version"
+  changed_when: false
+  register: get_systemd_version
+  tags:
+    # Avoid ANSIBLE0006 lint issue: systemctl used in place of systemd module
+    - skip_ansible_lint
+    - always
+
+- name: Set systemd version
+  set_fact:
+    systemd_version: "{{ get_systemd_version.stdout_lines[0].split()[-1] }}"
+  tags:
+    - always
+
 - name: Create TEMP run dir
   file:
     path: "/var/run/{{ item.service_name | replace(' ', '_') }}"

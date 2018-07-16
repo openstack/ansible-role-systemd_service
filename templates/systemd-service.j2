@@ -73,7 +73,13 @@ TasksAccounting={{ systemd_TasksAccounting }}
 PrivateTmp={{ systemd_PrivateTmp }}
 PrivateDevices={{ systemd_PrivateDevices }}
 PrivateNetwork={{ systemd_PrivateNetwork }}
+{# NOTE(cloudnull): Limit the use of PrivateUsers
+   The systemd directive "PrivateUsers" was implemented in systemd version 232.
+   To correct a lot of spam messages in the journal the default directive is
+   limited when to systemd version greater than or equal to 232 #}
+{%     if (systemd_version | int) >= 232 %}
 PrivateUsers={{ systemd_PrivateUsers }}
+{%     endif %}
 {%   endif %}
 {% endif %}
 
