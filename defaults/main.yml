@@ -35,10 +35,10 @@ systemd_MemoryAccounting: true
 systemd_TasksAccounting: true
 
 # Sandboxing options
-systemd_PrivateTmp: true
+systemd_PrivateTmp: false
 systemd_PrivateDevices: false
 systemd_PrivateNetwork: false
-systemd_PrivateUsers: true
+systemd_PrivateUsers: false
 
 # Start service after a given target. This is here because we want to define common
 #  after targets used on most services. This can be overridden or agumented using
