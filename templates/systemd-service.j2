@@ -2,8 +2,9 @@
 
 [Unit]
 Description={{ item.service_name }} service
-{% for item in systemd_after_targets %}
-After={{ item }}
+{% set after_targets = item.after_targets | default(systemd_after_targets) %}
+{% for target in after_targets %}
+After={{ target }}
 {% endfor %}
 {% for item in systemd_unit_docs %}
 Documentation={{ item }}
