@@ -52,13 +52,14 @@
 
 - name: Create TEMP defined lock dir
   file:
-    path: "{{ item.systemd_lock_path }}"
+    path: "{{ item.systemd_lock_path | default(systemd_lock_path) }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
   when:
-    - item.systemd_lock_path is defined
+    - (item.systemd_lock_path is defined) or
+      (systemd_lock_path is defined)
   with_items: "{{ systemd_services }}"
   tags:
     - systemd-service

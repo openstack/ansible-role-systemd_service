@@ -1,7 +1,8 @@
 # {{ ansible_managed }}
 
-{% if item.systemd_lock_path is defined %}
-D {{ item.systemd_lock_path }} 2755 {{ item.systemd_user_name | default(systemd_user_name) }} {{ item.systemd_group_name | default(systemd_group_name) }}
+{% if (item.systemd_lock_path is defined) or (systemd_lock_path is defined) %}
+D {{ item.systemd_lock_path | default(systemd_lock_path) }} 2755 {{ item.systemd_user_name | default(systemd_user_name) }} {{ item.systemd_group_name | default(systemd_group_name) }}
+D {{ (item.systemd_lock_path | default(systemd_lock_path)) | replace('lock', 'run') }} 2755 {{ item.systemd_user_name | default(systemd_user_name) }} {{ item.systemd_group_name | default(systemd_group_name) }}
 {% endif %}
 D /var/lock/{{ item.service_name | replace(' ', '_') }} 2755 {{ item.systemd_user_name | default(systemd_user_name) }} {{ item.systemd_group_name | default(systemd_group_name) }}
 D /var/run/{{ item.service_name | replace(' ', '_') }} 2755 {{ item.systemd_user_name | default(systemd_user_name) }} {{ item.systemd_group_name | default(systemd_group_name) }}
