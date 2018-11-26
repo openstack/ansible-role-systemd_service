@@ -12,8 +12,8 @@ Documentation={{ item }}
 [Service]
 {% set service_type = item.service_type | default(systemd_default_service_type) %}
 Type={{ service_type }}
-User={{ systemd_user_name }}
-Group={{ systemd_group_name }}
+User={{ item.systemd_user_name | default(systemd_user_name) }}
+Group={{ item.systemd_group_name | default(systemd_group_name) }}
 
 {% set _execstarts = item.execstarts %}
 {% if _execstarts is string %}
