@@ -62,6 +62,11 @@ systemd_service_config_overrides: {}
 # https://www.freedesktop.org/software/systemd/man/systemd.service.html#Type=
 systemd_default_service_type: simple
 
+# Global lock path used for system services.
+#  This is an optional variable and will have no effect if undefined.
+#  This option can also be defined for specific service entries under "systemd_services".
+# systemd_lock_path: "/var/lock/service1"
+
 # The systemd services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
