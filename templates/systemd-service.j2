@@ -15,6 +15,12 @@ Type={{ service_type }}
 User={{ item.systemd_user_name | default(systemd_user_name) }}
 Group={{ item.systemd_group_name | default(systemd_group_name) }}
 
+{% if item.environment is defined %}
+{% for key, value in item.environment.items() | default({}) %}
+Environment="{{ key }}={{ value }}"
+{% endfor %}
+{% endif %}
+
 {% set _execstarts = item.execstarts %}
 {% if _execstarts is string %}
 {%   set _execstarts = [_execstarts] %}
