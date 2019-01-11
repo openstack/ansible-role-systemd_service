@@ -67,6 +67,27 @@ systemd_default_service_type: simple
 #  This option can also be defined for specific service entries under "systemd_services".
 # systemd_lock_path: "/var/lock/service1"
 
+# Global Environment variables for system services.
+#  This option will provide the operator a way to set additional environment options
+#  used within the execution of a given service. Environment variables can be passed
+#  into the service using ADHOC options or through a given environment file. If both
+#  options are specified, and a collision occurs options will be set in the order in
+#  which they are read (top to bottom) with a given file being processed last.
+#
+#  If the `systemd_environment_file` is defined a file will be read into the systemd service
+#  unit, the contents of the file will be added to the execution environment of the service.
+#
+# The `systemd_environment_file` option is a string. The full path to a given file must be used.
+#  systemd_environment_file: "/etc/default/default-file"
+#
+# The `systemd_environmen`t option is a hash. each item in the hash is expected to be a sting
+# Example
+#   systemd_environment:
+#     VAR1: "word1 word2"
+#     VAR2: "word3"
+#     VAR3: "$word 5 6"
+systemd_environment: {}
+
 # The systemd services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
@@ -79,6 +100,8 @@ systemd_default_service_type: simple
 #  `program_accounting` -- (optional) Case sensitive Key=Value pairs for service Accounting
 #  `enabled` -- (optional) Set the enabled state of the service.
 #  `state` -- (optional) Set the running state of the service.
+#  `environment` -- (optional) set additional environment settings, this option is a hash of strings.
+#  `environment_file` -- (optional) set additional environment settings through a given file. this option is a string.
 
 # Under the service dictionary the "timer" key can be added which will enable a given service
 #  as a timer (Legacy cron job).
@@ -91,6 +114,21 @@ systemd_default_service_type: simple
 
 #  Examples:
 #   systemd_services:
+#     - service_name: ServiceU
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - ServiceU
+#           environment_file: "/etc/default/default-file"
+#
+#     - service_name: ServiceV
+#       config_overrides: {}  # This is used to add in arbitratry unit file options
+#       execstarts:
+#         - ServiceV
+#           environment:
+#             VAR1: "word1 word2"
+#             VAR2: "word3"
+#             VAR3: "$word 5 6"
+#
 #     - service_name: ServiceW
 #       config_overrides: {}  # This is used to add in arbitratry unit file options
 #       execstarts:

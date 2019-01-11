@@ -25,7 +25,12 @@
         - service_name: "test simple service0"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service; done'"
           enabled: yes
-        - service_name: "test oneshot service0"
+        - service_name: "test simple service0 with env vars"
+          execstarts: "/bin/bash -c 'while true; do sleep 2 && echo $ENV_VAR1; done'"
+          enabled: yes
+          environment:
+            ENV_VAR1: "testing"
+        - service_name: "test oneshot service1"
           config_overrides:
             Unit:
               Description: Test oneshot service
@@ -67,7 +72,8 @@
       changed_when: false
       with_items:
         - test_simple_service0
-        - test_oneshot_service0
+        - test_simple_service0_with_env_vars
+        - test_oneshot_service1
         - test_timer_service0.timer
         - test_timer_service1.timer
       tags:
