@@ -102,6 +102,8 @@ systemd_environment: {}
 #  `state` -- (optional) Set the running state of the service.
 #  `environment` -- (optional) set additional environment settings, this option is a hash of strings.
 #  `environment_file` -- (optional) set additional environment settings through a given file. this option is a string.
+#  `dynamic_user` -- (optional) Dynamically set a UNIX user and group when the unit is started; only works if systemd >= 235.
+#  `state_directory` -- (optional) Relative path the state directory; only works if systemd >= 235.
 
 # Under the service dictionary the "timer" key can be added which will enable a given service
 #  as a timer (Legacy cron job).

@@ -16,6 +16,10 @@ Type={{ service_type }}
 User={{ item.systemd_user_name | default(systemd_user_name) }}
 Group={{ item.systemd_group_name | default(systemd_group_name) }}
 
+{% if systemd_version|int >= 235 and item.dynamic_user is defined %}
+DynamicUser={{ item.dynamic_user|bool }}
+{% endif %}
+
 {% for key, value in (item.environment | default(systemd_environment)).items() %}
 Environment="{{ key }}={{ value }}"
 {% endfor %}
@@ -89,6 +93,9 @@ PrivateNetwork={{ systemd_PrivateNetwork }}
 {%     if (systemd_version | int) >= 232 %}
 PrivateUsers={{ systemd_PrivateUsers }}
 {%     endif %}
+{%   endif %}
+{%   if systemd_version|int >= 235 and item.state_directory is defined %}
+StateDirectory={{ item.state_directory }}
 {%   endif %}
 {% endif %}
 
