@@ -10,6 +10,10 @@ After={{ target }}
 Documentation={{ item }}
 {% endfor %}
 
+{% if (systemd_partof is defined) or (item.partof is defined) %}
+PartOf={{ item.partof | default(systemd_partof) }}
+{% endif %}
+
 [Service]
 {% set service_type = item.service_type | default(systemd_default_service_type) %}
 Type={{ service_type }}
