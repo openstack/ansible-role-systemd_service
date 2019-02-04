@@ -2,10 +2,22 @@
 
 [Unit]
 Description={{ item.service_name }} service
+
+{% if (systemd_PrivateNetwork | bool) %}
+BindsTo=systemd-netns@{{ item.service_name | replace(' ', '_') }}.service
+JoinsNamespaceOf=systemd-netns@{{ item.service_name | replace(' ', '_') }}.service
+{%   if (item.after_targets is defined) %}
+{%     set _ = item.after_targets.append('systemd-netns@' + item.service_name | replace(' ', '_') + '.service') %}
+{%   else %}
+{%     set _ = systemd_after_targets.append('systemd-netns@' + item.service_name | replace(' ', '_') + '.service') %}
+{%   endif %}
+{% endif %}
+
 {% set after_targets = item.after_targets | default(systemd_after_targets) %}
 {% for target in after_targets %}
 After={{ target }}
 {% endfor %}
+
 {% for item in systemd_unit_docs %}
 Documentation={{ item }}
 {% endfor %}

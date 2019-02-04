@@ -22,6 +22,100 @@
   roles:
     - role: "systemd_service"
       systemd_services:
+        - service_name: "test isolated service0"
+          execstarts: "/usr/bin/env python -m SimpleHTTPServer 8001"
+          enabled: yes
+      systemd_PrivateNetwork: yes
+
+  post_tasks:
+    - name: Check Services
+      command: systemctl status "test_isolated_service0"
+      changed_when: false
+      tags:
+        - skip_ansible_lint
+
+    - name: Check Services
+      shell: ip netns exec test_isolated_service0 ss -ntlp | grep python
+      changed_when: false
+      tags:
+        - skip_ansible_lint
+
+    - name: Check isolated services
+      command: ip netns exec test_isolated_service0 ip -o link
+      changed_when: false
+      register: isolated_service0
+      tags:
+        - skip_ansible_lint
+
+    - name: Check negative service testing
+      fail:
+        msg: >-
+          Two links not found within the namespace: {{ isolated_service1.stdout_lines }}
+      when:
+        - (isolated_service0.stdout_lines | length) != 1
+
+
+- name: Playbook for role testing
+  hosts: localhost
+  connection: local
+  user: root
+  become: true
+  roles:
+    - role: "systemd_service"
+      systemd_services:
+        - service_name: "test isolated service1"
+          execstarts: "/usr/bin/env python -m SimpleHTTPServer 8001"
+          enabled: yes
+      systemd_PrivateNetwork: yes
+      systemd_PrivateNetworkIsolated: no
+      systemd_PrivateNetworkDHCP: yes
+      systemd_PrivateNetworkLocalDHCP: yes
+      when:
+        - (ansible_os_family | lower) != "redhat"
+
+  post_tasks:
+    - name: Check Services
+      command: systemctl status "test_isolated_service1"
+      changed_when: false
+      when:
+        - (ansible_os_family | lower) != "redhat"
+      tags:
+        - skip_ansible_lint
+
+    - name: Check Services
+      shell: ip netns exec test_isolated_service1 ss -ntlp | grep python
+      changed_when: false
+      when:
+        - (ansible_os_family | lower) != "redhat"
+      tags:
+        - skip_ansible_lint
+
+    - name: Check isolated linked services
+      command: ip netns exec test_isolated_service1 ip -o link
+      changed_when: false
+      register: isolated_service1
+      when:
+        - (ansible_os_family | lower) != "redhat"
+      tags:
+        - skip_ansible_lint
+
+    - name: Check negative service testing
+      fail:
+        msg: >-
+          Two links not found within the namespace: {{ isolated_service1.stdout_lines }}
+      when:
+        - (ansible_os_family | lower) != "redhat"
+        - (isolated_service1.stdout_lines | length) != 2
+
+
+- name: Playbook for role testing
+  hosts: localhost
+  connection: local
+  user: root
+  become: true
+  roles:
+    - role: "systemd_service"
+      systemd_services:
         - service_name: "test simple service0"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service; done'"
           enabled: yes
@@ -84,7 +178,6 @@
         - name: Run the systemd service role
           include_role:
             name: systemd_service
-            private: true
           vars:
             systemd_services:
               - service_name: "test simple service1"
@@ -101,7 +194,6 @@
         - name: Run the systemd service role
           include_role:
             name: systemd_service
-            private: true
           vars:
             systemd_services:
               - service_name: "test simple service2"
@@ -119,7 +211,6 @@
         - name: Run the systemd service role
           include_role:
             name: systemd_service
-            private: true
           vars:
             systemd_services:
               - service_name: "test simple service3"

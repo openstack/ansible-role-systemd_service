@@ -37,8 +37,35 @@ systemd_TasksAccounting: true
 # Sandboxing options
 systemd_PrivateTmp: false
 systemd_PrivateDevices: false
-systemd_PrivateNetwork: false
 systemd_PrivateUsers: false
+
+# Systemd provides for the ability to start a given service in a network
+#  namespace. When `systemd_PrivateNetwork` is `true` a service will be
+#  started within a namepsace created using the name of the service unit.
+systemd_PrivateNetwork: false
+# When `systemd_PrivateNetwork` is enabled, it may be desirable to add a
+#  specific link into the service namespace using the MACVLAN interface.
+#  The option `systemd_PrivateNetworkIsolated`, when set to `false`, will
+#  create a MACVLAN interface which binds to the host interface defined
+#  by the option `systemd_PrivateNetworkInterface`; uses the gateway
+#  interface by default. The MODE used by the MACVLAN interface can be
+#  changed using the option `systemd_PrivateNetworkMode`.
+systemd_PrivateNetworkIsolated: true
+systemd_PrivateNetworkInterface: "{{ ansible_default_ipv4['interface'] }}"
+systemd_PrivateNetworkMode: bridge
+# When `systemd_PrivateNetworkIsolated` is disabled, an interface is
+#  created on the host and within the service namespace. If this interface
+#  needs an IP address DHCP can be enabled which will, by default, send
+#  DHCP requests through the interface defined by the option
+#  `systemd_PrivateNetworkInterface`.
+systemd_PrivateNetworkDHCP: false
+# DHCP can be localized to only the physical host using option
+#  `systemd_PrivateNetworkLocalDHCP`. Setting this option to `true`, will
+#  create a networkd configuration for DHCPServer using the MACVLAN interface
+#  defined by `systemd_PrivateNetworkInterface`. The gateway set within the
+#  service namespace will be set using `systemd_PrivateNetworkLocalDHCPGateway`.
+systemd_PrivateNetworkLocalDHCP: false
+systemd_PrivateNetworkLocalDHCPGateway: "10.0.5.1/24"
 
 # Start service after a given target. This is here because we want to define common
 #  after targets used on most services. This can be overridden or agumented using
