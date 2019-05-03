@@ -72,7 +72,7 @@ systemd_PrivateNetworkLocalDHCPGateway: "10.0.5.1/24"
 #  the "systemd_services" dictionary option "after_targets".
 systemd_after_targets:
   - syslog.target
-  - network.target
+  - network-online.target
 
 # List of documentation information that will be presented in the unit. This
 #  option is a list of documentation items which can be local or online.
