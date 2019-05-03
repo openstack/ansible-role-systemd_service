@@ -45,7 +45,7 @@ systemd_PrivateUsers: false
 #  the "systemd_services" dictionary option "config_overrides".
 systemd_after_targets:
   - syslog.target
-  - network.target
+  - network-online.target
 
 # List of documentation information that will be presented in the unit. This
 #  option is a list of documentation items which can be local or online.
