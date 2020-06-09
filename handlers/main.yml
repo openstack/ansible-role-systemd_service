@@ -26,9 +26,3 @@
     - 'item is changed'
   tags:
    - systemd-service
-
-- name: systemd networkd restart
-  systemd:
-    name: "systemd-networkd"
-    state: restarted
-    enabled: true
