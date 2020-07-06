@@ -28,34 +28,6 @@
   tags:
     - always
 
-- name: Ensure networkd is available
-  block:
-    - name: Check for networkd
-      command: "which networkctl"
-      failed_when: false
-      changed_when: false
-      register: networkd_installed
-
-    - name: Notify user
-      debug:
-        msg: >-
-          Local DHCP has been disabled because networkd was not installed or
-          is not part of the $PATH.
-      run_once: true
-      when:
-        - networkd_installed.rc != 0
-
-    - name: Disable local DHCP
-      set_fact:
-        systemd_PrivateNetworkLocalDHCP: false
-      when:
-        - networkd_installed.rc != 0
-  when:
-    - systemd_PrivateNetwork | bool
-    - systemd_PrivateNetworkLocalDHCP | bool
-  tags:
-    - systemd-service
-
 - name: Create TEMP run dir
   file:
     path: "/var/run/{{ item.service_name | replace(' ', '_') }}"
@@ -89,45 +61,6 @@
     - (item.systemd_lock_path is defined) or
       (systemd_lock_path is defined)
   with_items: "{{ systemd_services }}"
-  tags:
-    - systemd-service
-
-- name: Create netns service entry
-  template:
-    src: "systemd-netns@.service.j2"
-    dest: "/etc/systemd/system/systemd-netns@.service"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-  when:
-    - systemd_PrivateNetwork | bool
-  tags:
-    - systemd-service
-
-- name: Create netns-access service entry
-  template:
-    src: "systemd-netns-access@.service.j2"
-    dest: "/etc/systemd/system/systemd-netns-access@.service"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-  when:
-    - systemd_PrivateNetwork | bool
-  tags:
-    - systemd-service
-
-- name: Create netns dhcp server
-  template:
-    src: "systemd-dhcp.network.j2"
-    dest: "/etc/systemd/network/systemd-mv-{{ systemd_PrivateNetworkInterface }}.network"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-  when:
-    - systemd_PrivateNetwork | bool
-    - systemd_PrivateNetworkLocalDHCP | bool
-  notify:
-    - systemd networkd restart
   tags:
     - systemd-service
 
