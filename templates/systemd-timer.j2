@@ -6,7 +6,13 @@ Description={{ item.service_name }} timer
 [Timer]
 {% if item.timer.options is defined %}
 {%   for key, values in item.timer.options.items() %}
+{%     if values is iterable and values is not string %}
+{%       for value in values %}
+{{ key }}={{ value }}
+{%       endfor %}
+{%     else %}
 {{ key }}={{ values }}
+{%     endif %}
 {%   endfor %}
 {% else %}
 {%   set OnCalendar = [] %}
