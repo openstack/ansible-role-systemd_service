@@ -64,6 +64,18 @@
   tags:
     - systemd-service
 
+- name: Create service.d overrides dir
+  file:
+    path: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d"
+    state: directory
+    owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+    group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
+    mode: "02755"
+  when: "'systemd_overrides' in item"
+  with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
 - name: Create tmpfiles.d entry
   template:
     src: "systemd-tmpfiles.j2"
@@ -85,9 +97,24 @@
     config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
   with_items: "{{ systemd_services }}"
+  when: not (item.systemd_overrides_only | default(False) | bool)
   notify:
     - systemd service changed
   register: systemd_services_result
+  tags:
+    - systemd-service
+
+- name: Place the systemd override
+  template:
+    src: "systemd-service-overrides.j2"
+    dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  with_items: "{{ systemd_services }}"
+  when: "'systemd_overrides' in item"
+  notify:
+    - systemd service changed
   tags:
     - systemd-service
 

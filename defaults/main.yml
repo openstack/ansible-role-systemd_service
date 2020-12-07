@@ -110,6 +110,10 @@ systemd_environment: {}
 #  `environment_file` -- (optional) set additional environment settings through a given file. this option is a string.
 #  `dynamic_user` -- (optional) Dynamically set a UNIX user and group when the unit is started; only works if systemd >= 235.
 #  `state_directory` -- (optional) Relative path the state directory; only works if systemd >= 235.
+#  `systemd_overrides` -- (optional) Dictionary that may contain custom structure in config_overrides format that
+#                         will be used to generate systemd overrides in /etc/systemd/system/service_name.service.d/overrides.conf
+#  `systemd_overrides_only` -- (optional) Boolean variable, when True no service_name.service will be generated and role
+#                              will place only overrides for the existing service.
 
 # Under the service dictionary the "sockets" key can be added, which may contain list of the sockets
 #  for the given service_name. Each socket in the lsit may have following structure:
@@ -215,4 +219,14 @@ systemd_environment: {}
 #         state: "started"
 #         cron_minute: 30
 #         cron_hour: 1
+#
+#     - service_name: ExistingService
+#       config_overrides: {}
+#       systemd_overrides_only: True
+#       systemd_overrides:  # This is used for adjusting existing services with arbitratry options
+#         Unit:
+#           Wants:
+#             - ServiceZ
+#             - ServiceY
+#       restart_changed: no
 systemd_services: []
