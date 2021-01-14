@@ -107,11 +107,25 @@
   tags:
     - systemd-service
 
+- name: Place the systemd socket
+  template:
+    src: "systemd-socket.j2"
+    dest: "/etc/systemd/system/{{ item.1.socket_name | replace(' ', '_') }}.socket"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  loop: "{{ systemd_services | subelements('sockets', skip_missing=True) }}"
+  notify:
+    - systemd service changed
+  register: systemd_socket
+  tags:
+    - systemd-service
+
 - name: Reload systemd on unit change
   systemd:
     daemon_reload: yes
   when:
-    - (systemd_services_result is changed) or (systemd_timer_result is changed)
+    - (systemd_services_result is changed) or (systemd_timer_result is changed) or ('true' in systemd_socket.results | map(attribute='changed') | list )
 
 - name: Load service
   systemd:
@@ -130,5 +144,14 @@
   when:
     - item.timer is defined
   with_items: "{{ systemd_services }}"
+  tags:
+    - systemd-service
+
+- name: Load socket
+  systemd:
+    name: "{{ item.socket_name | replace(' ', '_') }}.socket"
+    enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
+    state: "{{ item.state | default(omit) }}"
+  loop: "{{ systemd_services | selectattr('sockets', 'defined') | map(attribute='sockets') | flatten(1) }}"
   tags:
     - systemd-service
