@@ -64,6 +64,15 @@
             state: "started"
             cron_minute: 30
             cron_hour: 1
+        - service_name: "test_templated_service@"
+          service_type: oneshot
+          execstarts:
+            - "/bin/bash -c 'echo %i'"
+          template_arguments:
+            - 1
+            - 2
+          enabled: yes
+          state: started
 
   post_tasks:
     - name: Check Services

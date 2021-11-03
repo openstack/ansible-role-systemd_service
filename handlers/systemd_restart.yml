@@ -1,5 +1,5 @@
 ---
-# Copyright 2018, Logan Vig <logan2211@gmail.com>
+# Copyright 2021, City Network International AB.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,16 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Restart changed services
-  include_tasks: handlers/systemd_restart.yml
-  listen: systemd service changed
-  when:
-    - 'services_results.item.restart_changed | default(systemd_service_restart_changed) | bool'
-    - 'services_results.item.state is not defined'
-    - 'services_results.item.enabled | default(systemd_service_enabled) | bool'
-    - 'services_results is changed'
-  loop: "{{ systemd_services_result.results }}"
+- name: "Restart service {{ services_results.item.service_name | replace(' ', '_') }}"
+  systemd:
+    name: "{{ services_results.item.service_name | replace(' ', '_') }}{{ template_argument }}.{{ (services_results.item.timer is defined) | ternary('timer', 'service') }}"
+    state: restarted
+  loop: "{{ services_results.item.template_arguments | default(['']) }}"
   loop_control:
-    loop_var: services_results
-  tags:
-   - systemd-service
+    loop_var: template_argument

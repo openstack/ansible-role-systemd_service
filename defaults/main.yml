@@ -114,6 +114,10 @@ systemd_environment: {}
 #  `environment` -- (optional) set additional environment settings, this option is a hash of strings.
 #  `environment_file` -- (optional) set additional environment settings through a given file. this option is a string.
 #  `dynamic_user` -- (optional) Dynamically set a UNIX user and group when the unit is started; only works if systemd >= 235.
+#  `template_arguments` -- (optional) List of arguments that would be enabled/started in case service is a template.
+#                          For that to work properly, service_name should end with `@`, ie `dhcpcd@`
+#                          Systemd service template documentation can be found by the link:
+#                          https://www.freedesktop.org/software/systemd/man/systemd.service.html#Service%20Templates
 #  `state_directory` -- (optional) Relative path the state directory; only works if systemd >= 235.
 #  `systemd_overrides` -- (optional) Dictionary that may contain custom structure in config_overrides format that
 #                         will be used to generate systemd overrides in /etc/systemd/system/service_name.service.d/overrides.conf
@@ -238,4 +242,12 @@ systemd_environment: {}
 #             - ServiceZ
 #             - ServiceY
 #       restart_changed: no
+#
+# Example below will result in creating 2 templated services: Templated@arg1 and Templated@arg2
+#     - service_name: Templated@
+#       execstarts:
+#         - /tmp/script %i
+#       template_arguments:
+#         - arg1
+#         - arg2
 systemd_services: []

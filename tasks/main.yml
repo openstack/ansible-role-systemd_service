@@ -140,25 +140,10 @@
   when:
     - (systemd_services_result is changed) or (systemd_timer_result is changed) or ('true' in systemd_socket.results | map(attribute='changed') | list )
 
-- name: Load service
-  systemd:
-    name: "{{ item.service_name | replace(' ', '_') }}.service"
-    enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
-    state: "{{ (item.timer is defined) | ternary(omit, (item.state | default(omit))) }}"
-  with_items: "{{ systemd_services }}"
-  when:
-    - item.load | default(True)
-  tags:
-    - systemd-service
-
-- name: Load timer
-  systemd:
-    name: "{{ item.service_name | replace(' ', '_') }}.timer"
-    enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
-    state: "{{ item.timer.state | default(omit) }}"
-  when:
-    - item.timer is defined
-  with_items: "{{ systemd_services }}"
+- include_tasks: systemd_load.yml
+  loop: "{{ systemd_services }}"
+  loop_control:
+    loop_var: service
   tags:
     - systemd-service
 
