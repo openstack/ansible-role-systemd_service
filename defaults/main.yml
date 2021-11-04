@@ -72,11 +72,6 @@ systemd_run_dir: "/run"
 #   This option can also be defined for specific service entries under "systemd_services".
 systemd_lock_dir: "/run/lock"
 
-# Global lock path used for system services.
-#  This is an optional variable and will have no effect if undefined.
-#  This option can also be defined for specific service entries under "systemd_services".
-# systemd_lock_path: "/var/lock/service1"
-
 # Global Environment variables for system services.
 #  This option will provide the operator a way to set additional environment options
 #  used within the execution of a given service. Environment variables can be passed

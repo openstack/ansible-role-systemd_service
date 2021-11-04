@@ -48,7 +48,6 @@
           enabled: yes
           state: started
           systemd_tempd_prefix: openstack
-          systemd_lock_path: /var/lock/networking
         - service_name: "test timer service0"
           execstarts:
             - "/bin/bash -c 'echo start0'"
