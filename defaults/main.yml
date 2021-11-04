@@ -62,6 +62,16 @@ systemd_service_config_overrides: {}
 # https://www.freedesktop.org/software/systemd/man/systemd.service.html#Type=
 systemd_default_service_type: simple
 
+# System run directory used for services by default.
+#   Service name will be added to make a unique path.
+#   This option can also be defined for specific service entries under "systemd_services".
+systemd_run_dir: "/run"
+
+# System lock directory used for services by default.
+#   Service name will be added to make a unique path.
+#   This option can also be defined for specific service entries under "systemd_services".
+systemd_lock_dir: "/run/lock"
+
 # Global lock path used for system services.
 #  This is an optional variable and will have no effect if undefined.
 #  This option can also be defined for specific service entries under "systemd_services".
@@ -114,6 +124,8 @@ systemd_environment: {}
 #                         will be used to generate systemd overrides in /etc/systemd/system/service_name.service.d/overrides.conf
 #  `systemd_overrides_only` -- (optional) Boolean variable, when True no service_name.service will be generated and role
 #                              will place only overrides for the existing service.
+#  `systemd_run_dir` -- (optional) Run directory that will be used for service runtime. Service name is added to the path
+#  `systemd_lock_dir` -- (optional) Lock directory that will be used for service runtime. Service name is added to the path
 
 # Under the service dictionary the "sockets" key can be added, which may contain list of the sockets
 #  for the given service_name. Each socket in the lsit may have following structure:

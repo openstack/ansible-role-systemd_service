@@ -30,7 +30,7 @@
 
 - name: Create TEMP run dir
   file:
-    path: "/var/run/{{ item.service_name | replace(' ', '_') }}"
+    path: "{{ item.systemd_run_dir | default(systemd_run_dir) }}/{{ item.service_name | replace(' ', '_') }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
@@ -41,16 +41,19 @@
 
 - name: Create TEMP service lock dir
   file:
-    path: "/var/lock/{{ item.service_name | replace(' ', '_') }}"
+    path: "{{ item.systemd_lock_dir | default(systemd_lock_dir) }}/{{ item.service_name | replace(' ', '_') }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
   with_items: "{{ systemd_services }}"
+  when:
+    - (item.systemd_lock_path is not defined) and
+      (systemd_lock_path is not defined)
   tags:
     - systemd-service
 
-- name: Create TEMP defined lock dir
+- name: Create TEMP defined lock path
   file:
     path: "{{ item.systemd_lock_path | default(systemd_lock_path) }}"
     state: directory
