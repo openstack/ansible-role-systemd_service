@@ -119,8 +119,8 @@ systemd_environment: {}
 #                         will be used to generate systemd overrides in /etc/systemd/system/service_name.service.d/overrides.conf
 #  `systemd_overrides_only` -- (optional) Boolean variable, when True no service_name.service will be generated and role
 #                              will place only overrides for the existing service.
-#  `systemd_run_dir` -- (optional) Run directory that will be used for service runtime. Service name is added to the path
-#  `systemd_lock_dir` -- (optional) Lock directory that will be used for service runtime. Service name is added to the path
+#  `systemd_run_dir` -- (optional) Run directory that will be used for service runtime. Service slice or name is added to the path
+#  `systemd_lock_dir` -- (optional) Lock directory that will be used for service runtime. Service slice or name is added to the path
 
 # Under the service dictionary the "sockets" key can be added, which may contain list of the sockets
 #  for the given service_name. Each socket in the lsit may have following structure:

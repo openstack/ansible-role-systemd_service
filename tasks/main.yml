@@ -30,7 +30,7 @@
 
 - name: Create TEMP run dir
   file:
-    path: "{{ item.systemd_run_dir | default(systemd_run_dir) }}/{{ item.service_name | replace(' ', '_') }}"
+    path: "{{ item.systemd_run_dir | default(systemd_run_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
@@ -41,7 +41,7 @@
 
 - name: Create TEMP service lock dir
   file:
-    path: "{{ item.systemd_lock_dir | default(systemd_lock_dir) }}/{{ item.service_name | replace(' ', '_') }}"
+    path: "{{ item.systemd_lock_dir | default(systemd_lock_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
