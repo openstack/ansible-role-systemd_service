@@ -129,7 +129,8 @@ systemd_environment: {}
 #  `before_targets` -- (optional) Start the socket before this list of dependency units.
 #  `bind_targets` -- (optional) Bind the socket to this dependency unit.
 #  `enabled` -- (optional) Set the enabled state of the socket.
-#  `options` -- (optional) Additional options, like `ListenStream` or other
+#  `options` -- (optional) Additional options, like `ListenStream` or other. Specifying ListenStream in
+#               the options will suppress the default 'Service' field in [Socket]. 
 #  `state` -- (optional) Set the running state of the socket.
 
 # Under the service dictionary the "timer" key can be added which will enable a given service
