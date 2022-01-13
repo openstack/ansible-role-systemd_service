@@ -146,6 +146,8 @@
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
     state: "{{ (item.timer is defined) | ternary(omit, (item.state | default(omit))) }}"
   with_items: "{{ systemd_services }}"
+  when:
+    - item.load | default(True)
   tags:
     - systemd-service
 

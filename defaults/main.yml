@@ -121,6 +121,7 @@ systemd_environment: {}
 #                              will place only overrides for the existing service.
 #  `systemd_run_dir` -- (optional) Run directory that will be used for service runtime. Service slice or name is added to the path
 #  `systemd_lock_dir` -- (optional) Lock directory that will be used for service runtime. Service slice or name is added to the path
+#  `load` -- (optional) Boolean to set if the service is loaded. Socket activated services with '@' may not need to be loaded.
 
 # Under the service dictionary the "sockets" key can be added, which may contain list of the sockets
 #  for the given service_name. Each socket in the lsit may have following structure:
