@@ -13,7 +13,10 @@ BindsTo={{ target }}
 {% endfor %}
 
 [Socket]
+{% if 'ListenStream' not in item.1.options %}
 Service={{ item.0.service_name | replace(' ', '_') }}.service
+{% endif %}
+
 {% for key, var in item.1.options.items() | default({}) %}
 {{ key }}={{ var }}
 {% endfor %}
