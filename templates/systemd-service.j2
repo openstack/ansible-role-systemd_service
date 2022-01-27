@@ -63,6 +63,10 @@ Restart={{ systemd_Restart }}
 RestartSec={{ systemd_RestartSec }}
 {% endif %}
 
+{% if item.standard_output is defined %}
+StandardOutput={{ item.standard_output }}
+{% endif %}
+
 # This creates a specific slice which all services will operate from
 #  The accounting options give us the ability to see resource usage through
 #  the `systemd-cgtop` command.
