@@ -17,6 +17,7 @@
   command: "systemctl --version"
   changed_when: false
   register: get_systemd_version
+  check_mode: no
   tags:
     # Avoid ANSIBLE0006 lint issue: systemctl used in place of systemd module
     - skip_ansible_lint
