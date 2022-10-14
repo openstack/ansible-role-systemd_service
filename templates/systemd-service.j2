@@ -32,6 +32,10 @@ Environment="{{ key }}={{ value }}"
 EnvironmentFile={{ item.environment_file | default(systemd_environment_file) }}
 {% endif %}
 
+{% for execstartpre in item.execstartpres | default([]) %}
+ExecStartPre={{ execstartpre }}
+{% endfor %}
+
 {% set _execstarts = item.execstarts %}
 {% if _execstarts is string %}
 {%   set _execstarts = [_execstarts] %}
@@ -54,6 +58,10 @@ ExecReload={{ execreload }}
 {% endif %}
 {% for execstop in _execstops %}
 ExecStop={{ execstop }}
+{% endfor %}
+
+{% for execstoppost in item.execstopposts | default([]) %}
+ExecStopPost={{ execstoppost }}
 {% endfor %}
 
 # Give a reasonable amount of time for the server to start up/shut down

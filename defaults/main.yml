@@ -102,8 +102,10 @@ systemd_environment: {}
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
 #  `service_type` -- (optional) Set the service type, default is "simple".
+#  `execstartpres` -- (optional) Set the program that wil lexecute before service startup.
 #  `execstarts` -- (required) Set the program to start, when the service is simple the list has a max length of 1.
 #  `execstops` -- (optional) Set the program to stop, when the service is simple the list has a max length of 1.
+#  `execstopposts` -- (optional) Set the program that wil lexecute after service stop.
 #  `after_targets` -- (optional) Start the service after this list of dependency units.
 #  `partof` -- (optional) Set the systemd "partof" directive. This ties a service unit to another.
 #  `config_overrides` -- (optional) This allows any section or key=value pair to be set within the systemd unit file.
@@ -198,6 +200,8 @@ systemd_environment: {}
 #       execstops
 #         - /usr/bin/stopcmd1
 #         - /usr/bin/stopcmd2
+#       execstopposts:
+#         - /usr/local/bin/hook
 #       sockets:
 #         - socket_name: SocketServiceZ
 #           after_targets:
