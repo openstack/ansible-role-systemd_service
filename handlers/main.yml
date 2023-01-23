@@ -13,6 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Restart changed sockets
+  include_tasks: handlers/socket_restart.yml
+  listen: systemd socket changed
+  when:
+    - 'socket_results is changed'
+  loop: "{{ systemd_socket.results }}"
+  loop_control:
+    loop_var: socket_results
+  tags:
+   - systemd-service
+
+
 - name: Restart changed services
   include_tasks: handlers/systemd_restart.yml
   listen: systemd service changed

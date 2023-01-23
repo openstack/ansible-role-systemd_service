@@ -131,6 +131,7 @@
     group: "root"
   loop: "{{ systemd_services | subelements('sockets', skip_missing=True) }}"
   notify:
+    - systemd socket changed
     - systemd service changed
   register: systemd_socket
   tags:
