@@ -31,6 +31,11 @@
 
 - name: Restart changed services
   include_tasks: handlers/systemd_restart.yml
+  vars:
+    _systemd_service_name: "{{ services_results.item.service_name | replace(' ', '_') }}"
+    _systemd_service_type: "{{ (services_results.item.timer is defined) | ternary('timer', 'service') }}"
+    loop_label:
+      service_name: "{{ _systemd_service_name }}.{{ _systemd_service_type }}"
   listen: systemd service changed
   args:
     apply:
@@ -44,5 +49,6 @@
   loop: "{{ systemd_services_result.results }}"
   loop_control:
     loop_var: services_results
+    label: "{{ loop_label | to_json }}"
   tags:
     - systemd-service
