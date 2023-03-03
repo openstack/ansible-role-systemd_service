@@ -21,6 +21,10 @@
   loop: "{{ systemd_socket.results }}"
   loop_control:
     loop_var: socket_results
+  args:
+    apply:
+      tags:
+        - systemd-service
   tags:
    - systemd-service
 
@@ -28,6 +32,10 @@
 - name: Restart changed services
   include_tasks: handlers/systemd_restart.yml
   listen: systemd service changed
+  args:
+    apply:
+      tags:
+        - systemd-service
   when:
     - 'services_results.item.restart_changed | default(systemd_service_restart_changed) | bool'
     - 'services_results.item.state is not defined'

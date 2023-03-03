@@ -147,6 +147,10 @@
   loop: "{{ systemd_services }}"
   loop_control:
     loop_var: service
+  args:
+    apply:
+      tags:
+        - systemd-service
   tags:
     - systemd-service
 
