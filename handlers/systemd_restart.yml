@@ -15,7 +15,10 @@
 
 - name: "Restart service {{ services_results.item.service_name | replace(' ', '_') }}"
   systemd:
-    name: "{{ services_results.item.service_name | replace(' ', '_') }}{{ template_argument }}.{{ (services_results.item.timer is defined) | ternary('timer', 'service') }}"
+    name: >-
+      {{ services_results.item.service_name | replace(' ', '_') }}{{ template_argument }}.{{
+        (services_results.item.timer is defined) | ternary('timer', 'service')
+      }}
     state: restarted
   loop: "{{ services_results.item.template_arguments | default(['']) }}"
   loop_control:

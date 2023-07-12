@@ -141,9 +141,13 @@
   systemd:
     daemon_reload: yes
   when:
-    - (systemd_services_result is changed) or (systemd_timer_result is changed) or (systemd_override_result is changed ) or (systemd_socket.results | selectattr('changed', 'true') | length > 0)
+    - (systemd_services_result is changed) or
+      (systemd_timer_result is changed) or
+      (systemd_override_result is changed ) or
+      (systemd_socket.results | selectattr('changed', 'true') | length > 0)
 
-- include_tasks: systemd_load.yml
+- name: Including systemd_load tasks
+  include_tasks: systemd_load.yml
   loop: "{{ systemd_services }}"
   loop_control:
     loop_var: service

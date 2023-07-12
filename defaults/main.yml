@@ -24,21 +24,21 @@ systemd_service_restart_changed: yes
 systemd_tempd_prefix: tempd
 
 # Give a reasonable amount of time for the server to start up/shut down
-systemd_TimeoutSec: 120
-systemd_Restart: on-failure
-systemd_RestartSec: 2
+systemd_service_timeout_sec: "{{ systemd_TimeoutSec | default(120) }}"
+systemd_service_restart: "{{ systemd_Restart | default('on-failure') }}"
+systemd_service_restart_sec: "{{ systemd_RestartSec | default(2) }}"
 
 # Accounting options
-systemd_CPUAccounting: true
-systemd_BlockIOAccounting: true
-systemd_MemoryAccounting: true
-systemd_TasksAccounting: true
+systemd_service_cpu_accounting: "{{ systemd_CPUAccounting | default(true) }}"
+systemd_service_block_io_accounting: "{{ systemd_BlockIOAccounting | default(true) }}"
+systemd_service_memory_accounting: "{{ systemd_MemoryAccounting | default(true) }}"
+systemd_service_tasks_accounting: "{{ systemd_TasksAccounting | default(true) }}"
 
 # Sandboxing options
-systemd_PrivateTmp: false
-systemd_PrivateDevices: false
-systemd_PrivateNetwork: false
-systemd_PrivateUsers: false
+systemd_service_private_tmp: "{{ systemd_PrivateTmp | default(false) }}"
+systemd_service_private_devices: "{{ systemd_PrivateDevices | default(false) }}"
+systemd_service_private_network: "{{ systemd_PrivateNetwork | default(false) }}"
+systemd_service_private_users: "{{ systemd_PrivateUsers | default(false) }}"
 
 # Start service after a given target. This is here because we want to define common
 #  after targets used on most services. This can be overridden or agumented using
@@ -138,7 +138,7 @@ systemd_environment: {}
 #  `bind_targets` -- (optional) Bind the socket to this dependency unit.
 #  `enabled` -- (optional) Set the enabled state of the socket.
 #  `options` -- (optional) Additional options, like `ListenStream` or other. Specifying ListenStream in
-#               the options will suppress the default 'Service' field in [Socket]. 
+#               the options will suppress the default 'Service' field in [Socket].
 #  `state` -- (optional) Set the running state of the socket.
 
 # Under the service dictionary the "timer" key can be added which will enable a given service

@@ -26,7 +26,7 @@
       tags:
         - systemd-service
   tags:
-   - systemd-service
+    - systemd-service
 
 
 - name: Restart changed services
@@ -45,4 +45,4 @@
   loop_control:
     loop_var: services_results
   tags:
-   - systemd-service
+    - systemd-service
