@@ -13,15 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: "Restart socket"
+- name: "Restarting socket"
   systemd:
     name: "{{ socket.socket_name | replace(' ', '_') }}.socket"
     state: restarted
   when:
-    - "'socket_name' in socket"
     - socket.restart_changed | default(systemd_service_restart_changed) | bool
     - "'state' not in socket"
     - socket.enabled | default(systemd_service_enabled) | bool
-  loop: "{{ socket_results.item }}"
+  loop: "{{ socket_results.item | selectattr('socket_name', 'defined')  }}"
   loop_control:
     loop_var: socket
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      name: "{{ socket.socket_name | replace(' ', '_') }}.socket"
+      state: restarted

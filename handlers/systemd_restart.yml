@@ -13,13 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: "Restart service {{ services_results.item.service_name | replace(' ', '_') }}"
+- name: "Restarting service"
   systemd:
-    name: >-
-      {{ services_results.item.service_name | replace(' ', '_') }}{{ template_argument }}.{{
-        (services_results.item.timer is defined) | ternary('timer', 'service')
-      }}
+    name: "{{ _systemd_service_name }}{{ template_argument }}.{{ _systemd_service_type }}"
     state: restarted
   loop: "{{ services_results.item.template_arguments | default(['']) }}"
   loop_control:
     loop_var: template_argument
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      name: "{{ _systemd_service_name }}"
+      state: restarted
+      template: "{{ template_argument }}"
+      type: "{{ _systemd_service_type }}"

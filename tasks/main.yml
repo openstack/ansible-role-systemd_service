@@ -36,7 +36,14 @@
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      path: "{{ item.systemd_run_dir | default(systemd_run_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
+      owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+      group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
   tags:
     - systemd-service
 
@@ -47,7 +54,14 @@
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      path: "{{ item.systemd_lock_dir | default(systemd_lock_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
+      owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+      group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
   tags:
     - systemd-service
 
@@ -59,7 +73,14 @@
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
   when: "'systemd_overrides' in item"
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label: 
+      path: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d"
+      owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
+      group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
   tags:
     - systemd-service
 
@@ -67,10 +88,13 @@
   template:
     src: "systemd-tmpfiles.j2"
     dest: "/etc/tmpfiles.d/{{ item.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ item.service_name | replace(' ', '_') }}.conf"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      src: "systemd-tmpfiles.j2"
+      dest: "/etc/tmpfiles.d/{{ item.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ item.service_name | replace(' ', '_') }}.conf"
   tags:
     - systemd-service
 
@@ -78,12 +102,17 @@
   openstack.config_template.config_template:
     src: "systemd-service.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
-    mode: "0644"
-    owner: "root"
-    group: "root"
     config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      src: "systemd-service.j2"
+      dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
+      config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
+      config_type: "ini"
   when: not (item.systemd_overrides_only | default(False) | bool)
   notify:
     - systemd service changed
@@ -95,10 +124,13 @@
   template:
     src: "systemd-service-overrides.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
-    mode: "0644"
-    owner: "root"
-    group: "root"
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      src: "systemd-service-overrides.j2"
+      dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
   when: "'systemd_overrides' in item"
   notify:
     - systemd service changed
@@ -115,7 +147,13 @@
     group: "root"
   when:
     - item.timer is defined
-  with_items: "{{ systemd_services }}"
+  loop: "{{ systemd_services }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      src: "systemd-timer.j2"
+      dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.timer"
   notify:
     - systemd service changed
   register: systemd_timer_result
@@ -130,6 +168,12 @@
     owner: "root"
     group: "root"
   loop: "{{ systemd_services | subelements('sockets', skip_missing=True) }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      src: "systemd-socket.j2"
+      dest: "/etc/systemd/system/{{ item.1.socket_name | replace(' ', '_') }}.socket"
   notify:
     - systemd socket changed
     - systemd service changed
@@ -148,9 +192,14 @@
 
 - name: Including systemd_load tasks
   include_tasks: systemd_load.yml
+  vars:
+    _systemd_service_name: "{{ service.service_name | replace(' ', '_') }}"
+    loop_label:
+      service_name: "{{ _systemd_service_name }}"
   loop: "{{ systemd_services }}"
   loop_control:
     loop_var: service
+    label: "{{ loop_label | to_json }}"
   args:
     apply:
       tags:
@@ -164,5 +213,12 @@
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
     state: "{{ item.state | default(omit) }}"
   loop: "{{ systemd_services | selectattr('sockets', 'defined') | map(attribute='sockets') | flatten(1) }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      name: "{{ item.socket_name | replace(' ', '_') }}.socket"
+      enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
+      state: "{{ item.state | default(omit) }}"
   tags:
     - systemd-service

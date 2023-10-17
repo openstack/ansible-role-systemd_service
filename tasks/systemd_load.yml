@@ -16,9 +16,9 @@
 # NOTE(noonedeadpunk): If we don't have template_arguments set, we just iterate over list with
 #                      empty string as element. This won't have any effect on the results, but
 #                      we reduce code duplication
-- name: "Load service {{ service.service_name | replace(' ', '_') }}"
+- name: "Load service {{ _systemd_service_name }}"
   systemd:
-    name: "{{ service.service_name | replace(' ', '_') }}{{ template_argument }}.service"
+    name: "{{ _systemd_service_name }}{{ template_argument }}.service"
     enabled: "{{ service.enabled | default(systemd_service_enabled) }}"
     state: "{{ (service.timer is defined) | ternary(omit, (service.state | default(omit))) }}"
   when:
@@ -26,10 +26,16 @@
   loop: "{{ service.template_arguments | default(['']) }}"
   loop_control:
     loop_var: template_argument
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      name: "{{ _systemd_service_name }}{{ template_argument }}.service"
+      enabled: "{{ service.enabled | default(systemd_service_enabled) }}"
+      state: "{{ (service.timer is defined) | ternary('omit', (service.state | default('omit'))) }}"
 
-- name: "Load timer {{ service.service_name | replace(' ', '_') }}"
+- name: "Load timer {{ _systemd_service_name }}"
   systemd:
-    name: "{{ service.service_name | replace(' ', '_') }}{{ template_argument }}.timer"
+    name: "{{ _systemd_service_name }}{{ template_argument }}.timer"
     enabled: "{{ service.enabled | default(systemd_service_enabled) }}"
     state: "{{ service.timer.state | default(omit) }}"
   when:
@@ -37,3 +43,9 @@
   with_items: "{{ service.template_arguments | default(['']) }}"
   loop_control:
     loop_var: template_argument
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      name: "{{ _systemd_service_name }}{{ template_argument }}.timer"
+      enabled: "{{ service.enabled | default(systemd_service_enabled) }}"
+      state: "{{ service.timer.state | default('omit') }}"
