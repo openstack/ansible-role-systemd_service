@@ -20,7 +20,7 @@ Type={{ service_type }}
 User={{ item.systemd_user_name | default(systemd_user_name) }}
 Group={{ item.systemd_group_name | default(systemd_group_name) }}
 
-{% if systemd_version|int >= 235 and item.dynamic_user is defined %}
+{% if item.dynamic_user is defined %}
 DynamicUser={{ item.dynamic_user|bool }}
 {% endif %}
 
@@ -102,15 +102,9 @@ TasksAccounting={{ systemd_service_tasks_accounting }}
 PrivateTmp={{ systemd_service_private_tmp }}
 PrivateDevices={{ systemd_service_private_devices }}
 PrivateNetwork={{ systemd_service_private_network }}
-{# NOTE(cloudnull): Limit the use of PrivateUsers
-   The systemd directive "PrivateUsers" was implemented in systemd version 232.
-   To correct a lot of spam messages in the journal the default directive is
-   limited when to systemd version greater than or equal to 232 #}
-{%     if (systemd_version | int) >= 232 %}
 PrivateUsers={{ systemd_service_private_users }}
-{%     endif %}
 {%   endif %}
-{%   if systemd_version|int >= 235 and item.state_directory is defined %}
+{%   if item.state_directory is defined %}
 StateDirectory={{ item.state_directory }}
 {%   endif %}
 {% endif %}
