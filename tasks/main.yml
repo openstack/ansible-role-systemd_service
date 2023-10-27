@@ -56,12 +56,11 @@
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
-  when: "'systemd_overrides' in item"
-  loop: "{{ systemd_services }}"
+  loop: "{{ systemd_services | rejectattr('systemd_overrides', 'undefined') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
-    loop_label: 
+    loop_label:
       path: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d"
       owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
       group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
@@ -88,7 +87,7 @@
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
     config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
-  loop: "{{ systemd_services }}"
+  loop: "{{ systemd_services | rejectattr('systemd_overrides_only', 'true') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -97,7 +96,6 @@
       dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
       config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
       config_type: "ini"
-  when: not (item.systemd_overrides_only | default(False) | bool)
   notify:
     - systemd service changed
   register: systemd_services_result
@@ -108,14 +106,13 @@
   template:
     src: "systemd-service-overrides.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
-  loop: "{{ systemd_services }}"
+  loop: "{{ systemd_services | rejectattr('systemd_overrides', 'undefined') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
     loop_label:
       src: "systemd-service-overrides.j2"
       dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
-  when: "'systemd_overrides' in item"
   notify:
     - systemd service changed
   register: systemd_override_result
@@ -129,9 +126,7 @@
     mode: "0644"
     owner: "root"
     group: "root"
-  when:
-    - item.timer is defined
-  loop: "{{ systemd_services }}"
+  loop: "{{ systemd_services | selectattr('timer', 'defined') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
