@@ -12,10 +12,10 @@ plugins repository **before** installing this role.
 Release notes for the project can be found at:
   https://docs.openstack.org/releasenotes/ansible-role-systemd_service
 
-You can also use the ``ansible-galaxy`` command on the ``ansible-role-requirements.yml`` file.
+You can also use the ``ansible-galaxy`` command on the ``requirements.yml`` file.
 
 ``` bash
-# ansible-galaxy install -r ansible-role-requirements.yml
+# ansible-galaxy install -r requirements.yml
 ```
 
 ----

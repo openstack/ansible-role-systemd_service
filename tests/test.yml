@@ -15,12 +15,9 @@
 # limitations under the License.
 
 - name: Playbook for role testing
-  hosts: localhost
-  connection: local
-  user: root
-  become: true
+  hosts: service_hosts
   roles:
-    - role: "systemd_service"
+    - role: "{{ playbook_dir | dirname | basename }}"
       systemd_services:
         - service_name: "test simple service0"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service; done'"
@@ -72,7 +69,6 @@
             - 1
             - 2
           enabled: yes
-          state: started
 
   post_tasks:
     - name: Check Services
