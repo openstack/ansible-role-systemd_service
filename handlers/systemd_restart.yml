@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: "Restarting service"
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ _systemd_service_name }}{{ template_argument }}.{{ _systemd_service_type }}"
     state: restarted
   loop: "{{ services_results.item.template_arguments | default(['']) }}"

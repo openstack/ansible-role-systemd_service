@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Create TEMP run dir
-  file:
+  ansible.builtin.file:
     path: "{{ item.systemd_run_dir | default(systemd_run_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
@@ -32,7 +32,7 @@
     - systemd-service
 
 - name: Create TEMP service lock dir
-  file:
+  ansible.builtin.file:
     path: "{{ item.systemd_lock_dir | default(systemd_lock_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
@@ -50,7 +50,7 @@
     - systemd-service
 
 - name: Create service.d overrides dir
-  file:
+  ansible.builtin.file:
     path: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d"
     state: directory
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
@@ -68,7 +68,7 @@
     - systemd-service
 
 - name: Create tmpfiles.d entry
-  template:
+  ansible.builtin.template:
     src: "systemd-tmpfiles.j2"
     dest: "/etc/tmpfiles.d/{{ item.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ item.service_name | replace(' ', '_') }}.conf"
   loop: "{{ systemd_services }}"
@@ -103,7 +103,7 @@
     - systemd-service
 
 - name: Place the systemd override
-  template:
+  ansible.builtin.template:
     src: "systemd-service-overrides.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
   loop: "{{ systemd_services | rejectattr('systemd_overrides', 'undefined') }}"
@@ -120,7 +120,7 @@
     - systemd-service
 
 - name: Place the systemd timer
-  template:
+  ansible.builtin.template:
     src: "systemd-timer.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.timer"
     mode: "0644"
@@ -140,7 +140,7 @@
     - systemd-service
 
 - name: Place the systemd socket
-  template:
+  ansible.builtin.template:
     src: "systemd-socket.j2"
     dest: "/etc/systemd/system/{{ item.1.socket_name | replace(' ', '_') }}.socket"
     mode: "0644"
@@ -161,7 +161,7 @@
     - systemd-service
 
 - name: Reload systemd on unit change
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
   when:
     - (systemd_services_result is changed) or
@@ -170,7 +170,7 @@
       (systemd_socket.results | selectattr('changed', 'true') | length > 0)
 
 - name: Including systemd_load tasks
-  include_tasks: systemd_load.yml
+  ansible.builtin.include_tasks: systemd_load.yml
   vars:
     _systemd_service_name: "{{ service.service_name | replace(' ', '_') }}"
     loop_label:
@@ -187,7 +187,7 @@
     - systemd-service
 
 - name: Load socket
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item.socket_name | replace(' ', '_') }}.socket"
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
     state: "{{ item.state | default(omit) }}"

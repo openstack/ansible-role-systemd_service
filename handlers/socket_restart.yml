@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: "Restarting socket"
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ socket.socket_name | replace(' ', '_') }}.socket"
     state: restarted
   when:
