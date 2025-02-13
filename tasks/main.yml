@@ -162,7 +162,7 @@
 
 - name: Reload systemd on unit change
   systemd:
-    daemon_reload: yes
+    daemon_reload: true
   when:
     - (systemd_services_result is changed) or
       (systemd_timer_result is changed) or

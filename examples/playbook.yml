@@ -1,5 +1,4 @@
 ---
-
 - name: Create a systemd unit file for ServiceX
   hosts: localhost
   become: true
@@ -13,7 +12,7 @@
               After: network-online.target
               Wants: network-online.target
             Service:
-              RemainAfterExit: yes
+              RemainAfterExit: true
           service_type: oneshot
           execstarts:
             - "/bin/bash -c 'echo start1'"
@@ -21,7 +20,7 @@
           execstops:
             - "/bin/bash -c 'echo stop1'"
             - "/bin/bash -c 'echo stop2'"
-          enabled: yes
+          enabled: true
           state: started
           systemd_tempd_prefix: openstack
           systemd_lock_path: /var/lock/networking

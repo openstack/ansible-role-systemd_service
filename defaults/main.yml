@@ -18,7 +18,7 @@ systemd_group_name: root
 systemd_slice_name: system
 
 # Restart services when a change occurs
-systemd_service_restart_changed: yes
+systemd_service_restart_changed: true
 
 # This is the prefix used for all temp files of a given type.
 systemd_tempd_prefix: tempd
@@ -53,7 +53,7 @@ systemd_after_targets:
 systemd_unit_docs: []
 
 # Set the service enabled state. Valid options are: [yes, no]
-systemd_service_enabled: yes
+systemd_service_enabled: true
 
 # Set global service overrides used within the service unit file.
 systemd_service_config_overrides: {}

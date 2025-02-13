@@ -17,7 +17,7 @@
   include_tasks: handlers/socket_restart.yml
   listen: systemd socket changed
   when:
-    - 'socket_results is changed'
+    - "socket_results is changed"
   loop: "{{ systemd_socket.results }}"
   loop_control:
     loop_var: socket_results
@@ -27,7 +27,6 @@
         - systemd-service
   tags:
     - systemd-service
-
 
 - name: Restart changed services
   include_tasks: handlers/systemd_restart.yml
@@ -42,10 +41,10 @@
       tags:
         - systemd-service
   when:
-    - 'services_results.item.restart_changed | default(systemd_service_restart_changed) | bool'
-    - 'services_results.item.state is not defined'
-    - 'services_results.item.enabled | default(systemd_service_enabled) | bool'
-    - 'services_results is changed'
+    - services_results.item.restart_changed | default(systemd_service_restart_changed) | bool
+    - services_results.item.state is not defined
+    - services_results.item.enabled | default(systemd_service_enabled) | bool
+    - services_results is changed
   loop: "{{ systemd_services_result.results }}"
   loop_control:
     loop_var: services_results
