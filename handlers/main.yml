@@ -17,7 +17,7 @@
   ansible.builtin.include_tasks: handlers/socket_restart.yml
   listen: systemd socket changed
   when:
-    - "socket_results is changed"
+    - socket_results is changed
   loop: "{{ systemd_socket.results }}"
   loop_control:
     loop_var: socket_results

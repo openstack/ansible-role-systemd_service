@@ -19,7 +19,7 @@
     state: restarted
   when:
     - socket.restart_changed | default(systemd_service_restart_changed) | bool
-    - "'state' not in socket"
+    - '"state" not in socket'
     - socket.enabled | default(systemd_service_enabled) | bool
   loop: "{{ socket_results.item | selectattr('socket_name', 'defined')  }}"
   loop_control:
