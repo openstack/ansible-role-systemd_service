@@ -1,6 +1,5 @@
 ---
 collections:
-  - name: openstack.config_template
-    source: https://opendev.org/openstack/ansible-config_template
+  - name: https://opendev.org/openstack/ansible-config_template
     type: git
     version: master
