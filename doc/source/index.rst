@@ -2,8 +2,17 @@
 systemd_service role for OpenStack-Ansible
 ==========================================
 
-:tags: openstack, systemd_service, cloud, ansible
-:category: \*nix
+This Ansible role that installs and configures systemd
+unit files and all of its corresponding services.
+This role requires the ``ansible-config_template`` collection
+to be available on your local system.
+To get collection you can use use the ``ansible-galaxy`` command on the
+``requirements.yml`` file.. You need to install collection **before**
+running this role.
+
+.. code-block:: bash
+
+    ansible-galaxy install -r requirements.yml
 
 This role will configure Systemd units:
 
