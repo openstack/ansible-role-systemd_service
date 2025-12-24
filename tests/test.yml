@@ -21,10 +21,10 @@
       systemd_services:
         - service_name: "test simple service0"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service; done'"
-          enabled: yes
+          enabled: true
         - service_name: "test simple service0 with env vars"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo $ENV_VAR1; done'"
-          enabled: yes
+          enabled: true
           environment:
             ENV_VAR1: "testing"
         - service_name: "test oneshot service1"
@@ -34,7 +34,7 @@
               After: network-online.target
               Wants: network-online.target
             Service:
-              RemainAfterExit: yes
+              RemainAfterExit: true
           service_type: oneshot
           execstarts:
             - "/bin/bash -c 'echo start1'"
@@ -42,7 +42,7 @@
           execstops:
             - "/bin/bash -c 'echo stop1'"
             - "/bin/bash -c 'echo stop2'"
-          enabled: yes
+          enabled: true
           state: started
           systemd_tempd_prefix: openstack
         - service_name: "test timer service0"
@@ -68,7 +68,7 @@
           template_arguments:
             - 1
             - 2
-          enabled: yes
+          enabled: true
 
   post_tasks:
     - name: Check Services

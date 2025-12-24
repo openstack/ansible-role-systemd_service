@@ -71,6 +71,7 @@
   ansible.builtin.template:
     src: "systemd-tmpfiles.j2"
     dest: "/etc/tmpfiles.d/{{ item.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ item.service_name | replace(' ', '_') }}.conf"
+    mode: "0644"
   loop: "{{ systemd_services }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
@@ -87,7 +88,7 @@
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
     config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
-  loop: "{{ systemd_services | rejectattr('systemd_overrides_only', 'true') }}"
+  loop: "{{ systemd_services | openstack.osa.rejectattr('systemd_overrides_only', 'true') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -106,6 +107,7 @@
   ansible.builtin.template:
     src: "systemd-service-overrides.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
+    mode: "0644"
   loop: "{{ systemd_services | rejectattr('systemd_overrides', 'undefined') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
@@ -198,6 +200,6 @@
     loop_label:
       name: "{{ item.socket_name | replace(' ', '_') }}.socket"
       enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
-      state: "{{ item.state | default(omit) }}"
+      state: "{{ item.state | default('omit') }}"
   tags:
     - systemd-service
