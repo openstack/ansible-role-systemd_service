@@ -3,3 +3,6 @@ collections:
   - name: https://opendev.org/openstack/ansible-config_template
     type: git
     version: master
+  - name: https://opendev.org/openstack/openstack-ansible-plugins
+    type: git
+    version: master
