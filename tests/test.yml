@@ -17,7 +17,7 @@
 - name: Playbook for role testing
   hosts: service_hosts
   roles:
-    - role: "{{ playbook_dir | dirname | basename }}"
+    - role: systemd_service
       systemd_services:
         - service_name: "test simple service0"
           execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service; done'"
