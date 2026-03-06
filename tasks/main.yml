@@ -88,7 +88,11 @@
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service"
     config_overrides: "{{ item.config_overrides | default(systemd_service_config_overrides) }}"
     config_type: "ini"
-  loop: "{{ systemd_services | openstack.osa.rejectattr('systemd_overrides_only', 'true') }}"
+  loop: >-
+    {{
+      systemd_services | rejectattr('systemd_overrides_only', 'defined') +
+        systemd_services | selectattr('systemd_overrides_only', 'defined') | rejectattr('systemd_overrides_only', 'true')
+    }}
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
