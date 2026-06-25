@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 [Unit]
-Description={{ item.service_name }} service
+Description={{ item.service_description | default(item.service_name ~ ' service') }}
 {% set after_targets = item.after_targets | default(systemd_after_targets) %}
 {% for target in after_targets | sort %}
 After={{ target }}

@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 [Unit]
-Description={{ item.1.socket_name }} socket
+Description={{ item.1.socket_description | default(item.1.socket_name ~ ' socket') }}
 {% for target in item.1.after_targets | default([]) %}
 After={{ target }}
 {% endfor %}
