@@ -1,0 +1,170 @@
+---
+# Copyright 2026, Cleura AB.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Playbook for role testing
+  hosts: service_hosts
+  vars:
+    tested_services:
+      - unit: test_simple_service0.service
+        state: enabled
+        status: active
+        exists: true
+      - unit: test_simple_service0_with_env_vars.service
+        state: enabled
+        status: active
+        exists: true
+      - unit: test_oneshot_service1.service
+        state: enabled
+        status: active
+        exists: true
+      - unit: test_timer_service0.timer
+        state: enabled
+        status: active
+        exists: true
+      - unit: test_timer_service1.timer
+        state: enabled
+        status: active
+        exists: true
+      - unit: test_templated_service@.service
+        state: indirect
+        status: inactive
+        exists: true
+      - unit: test_templated_service@1.service
+        state: enabled
+        status: inactive
+        exists: false
+      - unit: test_templated_service@2.service
+        state: enabled
+        status: inactive
+        exists: false
+
+  tasks:
+    - name: Get status of systemd files
+      ansible.builtin.stat:
+        path: "/etc/systemd/system/{{ item.unit }}"
+      register: systemd_files
+      when:
+        - item.exists
+      loop: "{{ tested_services }}"
+
+    - name: Assert systemd files exist
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+        fail_msg: "File {{ item.item }} does not exist"
+      loop: "{{ systemd_files.results }}"
+      when:
+        - item.item.exists
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Get status of service enabled state
+      ansible.builtin.command: systemctl is-enabled "{{ item.unit }}"
+      register: enabled_status
+      changed_when: false
+      failed_when: enabled_status.rc not in [0, 1]
+      loop: "{{ tested_services }}"
+      loop_control:
+        label: "{{ item.unit }}"
+
+    - name: Assert units are enabled
+      ansible.builtin.assert:
+        that:
+          - item.stdout == item.item.state
+        fail_msg: "Unit {{ item.item.unit }} is not {{ item.item.state }}"
+      loop: "{{ enabled_status.results }}"
+      loop_control:
+        label: "{{ item.item.unit }}"
+
+    - name: Get status of service active state
+      ansible.builtin.command: systemctl is-active "{{ item.unit }}"
+      register: active_status
+      changed_when: false
+      failed_when: active_status.rc not in [0, 1, 3, 4]
+      loop: "{{ tested_services }}"
+      loop_control:
+        label: "{{ item.unit }}"
+
+    - name: Assert units have expected active status
+      ansible.builtin.assert:
+        that:
+          - >
+            (item.item.unit == 'test_templated_service@.service' and
+             item.rc == 1 and
+             'neither a valid invocation ID nor unit name' in item.stderr) or
+            (item.stdout == item.item.status)
+        fail_msg: "Unit {{ item.item.unit }} active status is {{ item.stdout | default('empty') }} (rc: {{ item.rc }}), expected {{ item.item.status }}"
+      loop: "{{ active_status.results }}"
+      loop_control:
+        label: "{{ item.item.unit }}"
+
+    - name: Get environment properties of test_simple_service0_with_env_vars
+      ansible.builtin.command: systemctl show test_simple_service0_with_env_vars.service --property=Environment
+      register: service_env
+      changed_when: false
+
+    - name: Assert environment variable is correct
+      ansible.builtin.assert:
+        that:
+          - "'ENV_VAR1=testing' in service_env.stdout"
+        fail_msg: "Environment variable ENV_VAR1=testing not found in test_simple_service0_with_env_vars"
+
+    - name: Get properties of oneshot service
+      ansible.builtin.command: systemctl show test_oneshot_service1.service --property=Type,RemainAfterExit
+      register: service_oneshot_props
+      changed_when: false
+
+    - name: Assert oneshot service properties are correct
+      ansible.builtin.assert:
+        that:
+          - "'Type=oneshot' in service_oneshot_props.stdout"
+          - "'RemainAfterExit=yes' in service_oneshot_props.stdout"
+        fail_msg: "test_oneshot_service1 does not have Type=oneshot or RemainAfterExit=yes"
+
+    - name: Read tmpfiles config for oneshot service
+      ansible.builtin.slurp:
+        src: /etc/tmpfiles.d/openstack-test_oneshot_service1.conf
+      register: tmpfiles_oneshot
+
+    - name: Assert tmpfiles contents are correct
+      ansible.builtin.assert:
+        that:
+          - "'/run/system' in (tmpfiles_oneshot.content | b64decode)"
+          - "'/run/lock/system' in (tmpfiles_oneshot.content | b64decode)"
+        fail_msg: "Tmpfiles config for test_oneshot_service1 does not contain expected run/lock directories"
+
+    - name: Read timer 0 config
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/test_timer_service0.timer
+      register: timer0_content
+
+    - name: Assert timer 0 options are correct
+      ansible.builtin.assert:
+        that:
+          - "'onbootsec=30min' in (timer0_content.content | b64decode | lower)"
+          - "'onunitactivesec=1h' in (timer0_content.content | b64decode | lower)"
+          - "'persistent=true' in (timer0_content.content | b64decode | lower)"
+        fail_msg: "Timer 0 options are not correct"
+
+    - name: Read timer 1 config
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/test_timer_service1.timer
+      register: timer1_content
+
+    - name: Assert timer 1 options are correct
+      ansible.builtin.assert:
+        that:
+          - "'oncalendar=30 1 * * *' in (timer1_content.content | b64decode | lower)"
+        fail_msg: "Timer 1 options are not correct"

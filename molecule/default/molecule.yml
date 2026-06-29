@@ -23,6 +23,7 @@ provisioner:
     name: ansible-lint
   playbooks:
     converge: ../../tests/test.yml
+    verify: ../../tests/verify.yml
   config_options:
     defaults:
       inject_facts_as_vars: false
