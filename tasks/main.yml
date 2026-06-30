@@ -13,10 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Include service unload tasks
+  ansible.builtin.include_tasks:
+    file: systemd_unload.yml
+  vars:
+    _systemd_service_name: "{{ service.service_name | replace(' ', '_') }}"
+    loop_label:
+      service_name: "{{ _systemd_service_name }}"
+  loop: "{{ _systemd_absent_services }}"
+  loop_control:
+    loop_var: service
+    label: "{{ loop_label | to_json }}"
+  args:
+    apply:
+      tags:
+        - systemd-service
+  tags:
+    - systemd-service
+
 - name: Create TEMP run dir
   ansible.builtin.file:
     path: "{{ item.systemd_run_dir | default(systemd_run_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
-    state: directory
+    state: "{{ (item.state | default('') == 'absent') | ternary('absent', 'directory') }}"
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
@@ -34,7 +52,7 @@
 - name: Create TEMP service lock dir
   ansible.builtin.file:
     path: "{{ item.systemd_lock_dir | default(systemd_lock_dir) }}/{{ item.systemd_slice_name | default(systemd_slice_name) | replace(' ', '_') }}"
-    state: directory
+    state: "{{ (item.state | default('') == 'absent') | ternary('absent', 'directory') }}"
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
@@ -52,11 +70,11 @@
 - name: Create service.d overrides dir
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d"
-    state: directory
+    state: "{{ (item.state | default('') == 'absent') | ternary('absent', 'directory') }}"
     owner: "{{ item.systemd_user_name | default(systemd_user_name) }}"
     group: "{{ item.systemd_group_name | default(systemd_group_name) }}"
     mode: "02755"
-  loop: "{{ systemd_services | rejectattr('systemd_overrides', 'undefined') }}"
+  loop: "{{ _systemd_present_services | rejectattr('systemd_overrides', 'undefined') + _systemd_absent_services }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -72,7 +90,7 @@
     src: "systemd-tmpfiles.j2"
     dest: "/etc/tmpfiles.d/{{ item.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ item.service_name | replace(' ', '_') }}.conf"
     mode: "0644"
-  loop: "{{ systemd_services }}"
+  loop: "{{ _systemd_present_services }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -90,8 +108,8 @@
     config_type: "ini"
   loop: >-
     {{
-      systemd_services | rejectattr('systemd_overrides_only', 'defined') +
-        systemd_services | selectattr('systemd_overrides_only', 'defined') | rejectattr('systemd_overrides_only', 'true')
+      _systemd_present_services | rejectattr('systemd_overrides_only', 'defined') +
+        _systemd_present_services | selectattr('systemd_overrides_only', 'defined') | rejectattr('systemd_overrides_only', 'true')
     }}
   loop_control:
     label: "{{ loop_label | to_json }}"
@@ -112,7 +130,7 @@
     src: "systemd-service-overrides.j2"
     dest: "/etc/systemd/system/{{ item.service_name | replace(' ', '_') }}.service.d/override.conf"
     mode: "0644"
-  loop: "{{ systemd_services | rejectattr('systemd_overrides', 'undefined') }}"
+  loop: "{{ _systemd_present_services | rejectattr('systemd_overrides', 'undefined') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -132,7 +150,7 @@
     mode: "0644"
     owner: "root"
     group: "root"
-  loop: "{{ systemd_services | selectattr('timer', 'defined') }}"
+  loop: "{{ _systemd_present_services | selectattr('timer', 'defined') }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -152,7 +170,7 @@
     mode: "0644"
     owner: "root"
     group: "root"
-  loop: "{{ systemd_services | subelements('sockets', skip_missing=True) }}"
+  loop: "{{ _systemd_present_services | subelements('sockets', skip_missing=True) }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:
@@ -181,7 +199,7 @@
     _systemd_service_name: "{{ service.service_name | replace(' ', '_') }}"
     loop_label:
       service_name: "{{ _systemd_service_name }}"
-  loop: "{{ systemd_services }}"
+  loop: "{{ _systemd_present_services }}"
   loop_control:
     loop_var: service
     label: "{{ loop_label | to_json }}"
@@ -197,7 +215,7 @@
     name: "{{ item.socket_name | replace(' ', '_') }}.socket"
     enabled: "{{ item.enabled | default(systemd_service_enabled) }}"
     state: "{{ item.state | default(omit) }}"
-  loop: "{{ systemd_services | selectattr('sockets', 'defined') | map(attribute='sockets') | flatten(1) }}"
+  loop: "{{ _systemd_present_services | selectattr('sockets', 'defined') | map(attribute='sockets') | flatten(1) }}"
   loop_control:
     label: "{{ loop_label | to_json }}"
   vars:

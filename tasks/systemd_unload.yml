@@ -1,0 +1,95 @@
+---
+# Copyright 2026, Cleura AB
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Check if service file exists for absent service {{ _systemd_service_name }}
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ _systemd_service_name }}.service"
+  register: service_file_stat
+
+- name: Check if timer file exists for absent service {{ _systemd_service_name }}
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ _systemd_service_name }}.timer"
+  register: timer_file_stat
+
+- name: Check if socket files exist for absent service {{ _systemd_service_name }}
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ item.socket_name | replace(' ', '_') }}.socket"
+  register: socket_file_stat
+  loop: "{{ service.sockets | default([]) }}"
+
+- name: "Stop and disable service {{ _systemd_service_name }}"
+  ansible.builtin.systemd_service:
+    name: "{{ _systemd_service_name }}{{ item }}.service"
+    enabled: false
+    state: stopped
+  loop: "{{ service.template_arguments | default(['']) }}"
+  loop_control:
+    label: "{{ loop_label | to_json }}"
+  vars:
+    loop_label:
+      name: "{{ _systemd_service_name }}{{ item }}.service"
+  when:
+    - service_file_stat.stat.exists | default(false)
+
+- name: "Stop and disable timer {{ _systemd_service_name }}"
+  ansible.builtin.systemd_service:
+    name: "{{ _systemd_service_name }}{{ item }}.timer"
+    enabled: false
+    state: stopped
+  loop: "{{ service.template_arguments | default(['']) }}"
+  when:
+    - timer_file_stat.stat.exists | default(false)
+
+- name: "Stop and disable sockets for {{ _systemd_service_name }} if state is absent"
+  ansible.builtin.systemd:
+    name: "{{ item.item.socket_name | replace(' ', '_') }}.socket"
+    enabled: false
+    state: stopped
+  loop: "{{ socket_file_stat.results | default([]) }}"
+  when:
+    - item.stat.exists | default(false)
+
+- name: Remove tmpfiles entries
+  ansible.builtin.file:
+    path: "/etc/tmpfiles.d/{{ service.systemd_tempd_prefix | default(systemd_tempd_prefix) }}-{{ service.service_name | replace(' ', '_') }}.conf"
+    state: absent
+
+- name: Remove service files
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ _systemd_service_name }}.service"
+    state: absent
+  notify:
+    - Reload systemd daemon
+  when:
+    - service_file_stat.stat.exists | default(false)
+
+- name: Remove timer files
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ _systemd_service_name }}.timer"
+    state: absent
+  notify:
+    - Reload systemd daemon
+  when:
+    - timer_file_stat.stat.exists | default(false)
+
+- name: Remove socket files
+  ansible.builtin.file:
+    path: "/etc/systemd/system/{{ item.item.socket_name | replace(' ', '_') }}.socket"
+    state: absent
+  loop: "{{ socket_file_stat.results | default([]) }}"
+  notify:
+    - Reload systemd daemon
+  when:
+    - item.stat.exists | default(false)

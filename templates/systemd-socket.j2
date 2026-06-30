@@ -13,7 +13,7 @@ BindsTo={{ target }}
 {% endfor %}
 
 [Socket]
-{% if 'ListenStream' not in item.1.options %}
+{% if 'ListenStream' not in item.1.options | default({}) %}
 Service={{ item.0.service_name | replace(' ', '_') }}.service
 {% endif %}
 

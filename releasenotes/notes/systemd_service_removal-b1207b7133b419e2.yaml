@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added a special ``state: absent`` for the service. When this state is set
+    the service will be stopped, disabled and removed from the system.
