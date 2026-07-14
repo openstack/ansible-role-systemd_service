@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added ``service_description`` and ``socket_description`` keys which can be
+    used to define an arbitratry description for services.
+    When not defined, ``service_name`` and ``socket_name`` will be used to
+    construct the description, preserving existing behavior.

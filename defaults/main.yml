@@ -101,6 +101,7 @@ systemd_environment: {}
 # The systemd services dictionary is a set of services that will be created. The dictionary
 #  can contain the following options:
 #  `service_name` -- (required) used to define the name of the service. This is typically the name of the executable.
+#  `service_description` -- (optional) description of the service. Will be constructed from service_name if undefined.
 #  `service_type` -- (optional) Set the service type, default is "simple".
 #  `execstartpres` -- (optional) Set the program that wil lexecute before service startup.
 #  `execstarts` -- (required) Set the program to start, when the service is simple the list has a max length of 1.
@@ -133,6 +134,7 @@ systemd_environment: {}
 # Under the service dictionary the "sockets" key can be added, which may contain list of the sockets
 #  for the given service_name. Each socket in the lsit may have following structure:
 #  `socket_name` -- (required) Name of created socket
+#  `socket_description` -- (optional) Description of the socket. socket_name will be used if undefined.
 #  `after_targets` -- (optional) Start the socket after this list of dependency units.
 #  `before_targets` -- (optional) Start the socket before this list of dependency units.
 #  `bind_targets` -- (optional) Bind the socket to this dependency unit.

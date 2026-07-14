@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 [Unit]
-Description={{ item.service_name }} timer
+Description={{ item.service_description | default(item.service_name ~ ' timer') }}
 
 [Timer]
 {% if item.timer.options is defined %}
