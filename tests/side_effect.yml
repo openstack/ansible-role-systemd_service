@@ -1,0 +1,158 @@
+---
+# Copyright 2026, Cleura AB.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Playbook for role testing (side effect)
+  hosts: service_hosts
+  roles:
+    - role: systemd_service
+      systemd_services:
+        # Modify execstarts command to output "test simple service changed"
+        - service_name: "test simple service0"
+          execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test simple service changed; done'"
+          enabled: true
+        # Disable the service (was enabled)
+        - service_name: "test simple service0 with env vars"
+          execstarts: "/bin/bash -c 'while true; do sleep 2 && echo $ENV_VAR1; done'"
+          enabled: false
+          environment:
+            ENV_VAR1: "testing"
+        # Update overrides - Description and RemainAfterExit
+        - service_name: "test oneshot service1"
+          config_overrides:
+            Unit:
+              Description: Test oneshot service changed
+              After: network-online.target
+              Wants: network-online.target
+            Service:
+              RemainAfterExit: false
+          service_type: oneshot
+          execstarts:
+            - "/bin/bash -c 'echo start1'"
+            - "/bin/bash -c 'echo start2'"
+          execstops:
+            - "/bin/bash -c 'echo stop1'"
+            - "/bin/bash -c 'echo stop2'"
+          enabled: true
+          state: started
+          systemd_tempd_prefix: openstack
+        # Set state to absent to remove the regular service
+        - service_name: "test absent service"
+          systemd_slice_name: "test_absent_service"
+          state: absent
+          sockets:
+            - socket_name: "test absent service"
+        # Set state to absent to remove the timer service
+        - service_name: "test timer service0"
+          state: absent
+        - service_name: "test override only service"
+          state: absent
+        # Update cron minute and hour (was 30 and 1)
+        - service_name: "test timer service1"
+          execstarts:
+            - "/bin/bash -c 'echo start1'"
+          timer:
+            state: "started"
+            cron_minute: 45
+            cron_hour: 2
+
+  post_tasks:
+    - name: Verify test_simple_service0 command change
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/test_simple_service0.service
+      register: service0_content
+
+    - name: Assert test_simple_service0 command has changed
+      ansible.builtin.assert:
+        that:
+          - "'test simple service changed' in (service0_content.content | b64decode)"
+        fail_msg: "test_simple_service0 has not changed to 'test simple service changed'"
+
+    - name: Verify test_simple_service0_with_env_vars enabled state is disabled
+      ansible.builtin.command: systemctl is-enabled test_simple_service0_with_env_vars.service
+      register: service0_env_enabled
+      changed_when: false
+      failed_when: service0_env_enabled.rc not in [0, 1]
+
+    - name: Assert test_simple_service0_with_env_vars is disabled
+      ansible.builtin.assert:
+        that:
+          - "service0_env_enabled.stdout == 'disabled'"
+        fail_msg: "test_simple_service0_with_env_vars.service is not disabled"
+
+    - name: Verify test_oneshot_service1 RemainAfterExit override has changed
+      ansible.builtin.command: systemctl show test_oneshot_service1.service --property=RemainAfterExit
+      register: oneshot_properties
+      changed_when: false
+
+    - name: Assert test_oneshot_service1 RemainAfterExit is no
+      ansible.builtin.assert:
+        that:
+          - "'RemainAfterExit=no' in oneshot_properties.stdout"
+        fail_msg: "RemainAfterExit for test_oneshot_service1 is not no"
+
+    - name: Verify test_absent_service and override_only files and folders are removed
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: absent_files_stat
+      loop:
+        - /etc/systemd/system/test_absent_service.service
+        - /etc/systemd/system/test_absent_service.socket
+        - /run/test_absent_service
+        - /run/lock/test_absent_service
+        - /etc/systemd/system/test_absent_service.service.d
+        - /etc/systemd/system/test_override_only_service.service.d
+        - /etc/systemd/system/test_override_only_service.service.d/override.conf
+
+    - name: Assert absent files and folders do not exist
+      ansible.builtin.assert:
+        that:
+          - not item.stat.exists
+        fail_msg: "{{ item.item }} still exists"
+      loop: "{{ absent_files_stat.results }}"
+
+    - name: Verify test_absent_service.socket is disabled/inactive
+      ansible.builtin.command: systemctl is-active test_absent_service.socket
+      register: socket_active
+      changed_when: false
+      failed_when: socket_active.rc not in [0, 3, 4]
+
+    - name: Assert test_absent_service.socket is inactive
+      ansible.builtin.assert:
+        that:
+          - socket_active.stdout == 'inactive'
+        fail_msg: "test_absent_service.socket is still active"
+
+    - name: Verify test_timer_service0.timer is disabled/inactive
+      ansible.builtin.command: systemctl is-active test_timer_service0.timer
+      register: timer0_active
+      changed_when: false
+      failed_when: timer0_active.rc not in [0, 3, 4]
+
+    - name: Assert test_timer_service0.timer is inactive
+      ansible.builtin.assert:
+        that:
+          - timer0_active.stdout == 'inactive'
+        fail_msg: "test_timer_service0.timer is still active"
+
+    - name: Verify test_timer_service1 calendar has changed
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/test_timer_service1.timer
+      register: timer1_content
+
+    - name: Assert timer 1 options are updated
+      ansible.builtin.assert:
+        that:
+          - "'oncalendar=45 2 * * *' in (timer1_content.content | b64decode | lower)"
+        fail_msg: "Timer 1 calendar option has not updated to '45 2 * * *'"

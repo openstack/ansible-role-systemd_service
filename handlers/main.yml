@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
 - name: Restart changed sockets
   ansible.builtin.include_tasks: handlers/socket_restart.yml
   listen: systemd socket changed

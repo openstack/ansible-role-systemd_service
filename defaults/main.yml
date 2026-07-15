@@ -113,7 +113,7 @@ systemd_environment: {}
 #  `program_sandboxing` -- (optional) Case sensitive Key=Value pairs for service Sandboxing
 #  `program_accounting` -- (optional) Case sensitive Key=Value pairs for service Accounting
 #  `enabled` -- (optional) Set the enabled state of the service.
-#  `state` -- (optional) Set the running state of the service.
+#  `state` -- (optional) Set the running state of the service. Can be set to `absent` to remove the service.
 #  `environment` -- (optional) set additional environment settings, this option is a hash of strings.
 #  `environment_file` -- (optional) set additional environment settings through a given file. this option is a string.
 #  `dynamic_user` -- (optional) Dynamically set a UNIX user and group when the unit is started; only works if systemd >= 235.

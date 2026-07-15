@@ -23,6 +23,7 @@ provisioner:
     name: ansible-lint
   playbooks:
     converge: ../../tests/test.yml
+    side_effect: ../../tests/side_effect.yml
     verify: ../../tests/verify.yml
   config_options:
     defaults:
@@ -30,3 +31,14 @@ provisioner:
 
 scenario:
   name: default
+  test_sequence:
+    - dependency
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - side_effect
+    - destroy

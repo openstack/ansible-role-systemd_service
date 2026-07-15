@@ -21,6 +21,14 @@
         state: enabled
         status: active
         exists: true
+      - unit: test_absent_service.service
+        state: enabled
+        status: inactive
+        exists: true
+      - unit: test_absent_service.socket
+        state: enabled
+        status: active
+        exists: true
       - unit: test_simple_service0_with_env_vars.service
         state: enabled
         status: active
@@ -168,3 +176,19 @@
         that:
           - "'oncalendar=30 1 * * *' in (timer1_content.content | b64decode | lower)"
         fail_msg: "Timer 1 options are not correct"
+
+    - name: Verify test_override_only_service files
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: override_only_stats
+      loop:
+        - /etc/systemd/system/test_override_only_service.service.d/override.conf
+        - /etc/systemd/system/test_override_only_service.service
+
+    - name: Assert override only files are correct
+      ansible.builtin.assert:
+        that:
+          - (item.item == '/etc/systemd/system/test_override_only_service.service.d/override.conf' and item.stat.exists) or
+            (item.item == '/etc/systemd/system/test_override_only_service.service' and not item.stat.exists)
+        fail_msg: "override_only files state is incorrect for {{ item.item }}"
+      loop: "{{ override_only_stats.results }}"

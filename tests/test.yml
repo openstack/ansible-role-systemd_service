@@ -45,6 +45,24 @@
           enabled: true
           state: started
           systemd_tempd_prefix: openstack
+        - service_name: "test absent service"
+          execstarts: "/bin/bash -c 'while true; do sleep 2 && echo test masked service; done'"
+          enabled: true
+          restart_changed: false
+          systemd_slice_name: "test_absent_service"
+          systemd_overrides:
+            Service:
+              LimitNOFILE: 65535
+          sockets:
+            - socket_name: "test absent service"
+              options:
+                ListenStream: "/run/test_absent_service.sock"
+        - service_name: "test override only service"
+          systemd_overrides_only: true
+          load: false
+          systemd_overrides:
+            Service:
+              LimitNOFILE: 65535
         - service_name: "test timer service0"
           execstarts:
             - "/bin/bash -c 'echo start0'"
